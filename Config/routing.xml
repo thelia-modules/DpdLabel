@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <route id="dpdlabel.api.config" path="/admin/module/DpdLabel/api-config" methods="post">
+        <default key="_controller">DpdLabel\Controller\ConfigurationController::configureApiAction</default>
+    </route>
+
+    <route id="dpdlabel.labels" path="/admin/module/DpdLabel/labels">
+        <default key="_controller">DpdLabel\Controller\LabelController::showAction</default>
+    </route>
+
+    <route id="dpdlabel.save.label" path="/admin/module/DpdLabel/saveLabel">
+        <default key="_controller">DpdLabel\Controller\LabelController::saveAction</default>
+    </route>
+
+    <route id="dpdlabel.download.label" path="/admin/module/DpdLabel/labels-file/{base64EncodedFilename}">
+        <default key="_controller">DpdLabel\Controller\LabelController::downloadAction</default>
+    </route>
+
+    <route id="dpdlabel.show.label" path="/admin/module/DpdLabel/getLabel/{orderRef}">
+        <default key="_controller">DpdLabel\Controller\LabelController::getLabelAction</default>
+    </route>
+
+    <route id="dpdlabel.delete.label" path="/admin/module/DpdLabel/deleteLabel">
+        <default key="_controller">DpdLabel\Controller\LabelController::deleteLabelAction</default>
+    </route>
+
+    <route id="dpdlabel.generate.label" path="/admin/module/DpdLabel/generateLabel">
+        <default key="_controller">DpdLabel\Controller\LabelController::generateLabelAction</default>
+    </route>
+
+    <route id="dpdlabel.create.label" path="/admin/picking/DpdLabel/createLabel">
+        <default key="_controller">DpdLabel\Controller\LabelController::createLabelAction</default>
+    </route>
+</routes>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config xmlns="http://thelia.net/schema/dic/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
+
+    <loops>
+        <loop name="dpdlabel.orders" class="DpdLabel\Loop\DpdOrders" />
+    </loops>
+
+    <forms>
+        <form name="dpdlabel.api.configuration.form" class="DpdLabel\Form\ApiConfigurationForm" />
+        <form name="dpdlabel.label.generation.form" class="DpdLabel\Form\LabelGenerationForm" />
+    </forms>
+
+    <services>
+        <service id="dpdlabel.labels.smarty.plugin" class="DpdLabel\Smarty\Plugins\DpdLabelNumber" scope="request">
+            <tag name="thelia.parser.register_plugin" />
+        </service>
+    </services>
+
+    <hooks>
+        <hook id="dpdlabel.back.hook" class="DpdLabel\Hook\BackHook">
+            <tag name="hook.event_listener" event="module.configuration" type="back" method="onModuleConfig" />
+            <tag name="hook.event_listener" event="main.in-top-menu-items" type="back" method="onMenuItems" />
+            <tag name="hook.event_listener" event="order-edit.bill-top" type="back" method="onOrderBillTop" />
+        </hook>
+    </hooks>
+</config>

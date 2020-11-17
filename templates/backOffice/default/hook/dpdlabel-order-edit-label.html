@@ -1,0 +1,86 @@
+{assign "err" $smarty.get.err}
+<br>
+<div class="title title-without-tabs clearfix">
+    {intl l='DPD label' d="dpdlabel.bo.default"}
+</div>
+{if $err}
+    <div class="alert alert-danger">{$err}</div>
+{/if}
+<table class="table table-striped">
+    <tr>
+        <th>{intl l='Label Number' d="dpdlabel.bo.default"}</th>
+        <th>{intl l='Date' d="dpdlabel.bo.default"}</th>
+        <th>{intl l='Destination' d="dpdlabel.bo.default"}</th>
+        <th></th>
+    </tr>
+    <tr>
+        {loop type="order" name="get-order-date" id=$order_id customer="*" backend_context="true"}
+            {DpdLabelNumber order_id=$ID}
+            <td>{$labelNbr}</td>
+            <td>{format_date date=$CREATE_DATE}</td>
+            {loop type="order_address" name="destination_loop" id=$DELIVERY_ADDRESS}
+                <td>{$ADDRESS1} {$CITY} {$ZIPCODE}</td>
+            {/loop}
+            <td>
+                <a class="btn btn-primary pull-right {if !$labelNbr} hidden {/if}" href="{url path='/admin/module/DpdLabel/saveLabel' labelNbr=$labelNbr orderId=$order_id}">
+                    {intl l='Download' d="dpdlabel.bo.default"}
+                </a>
+                <a class="btn btn-info pull-right {if !$labelNbr} hidden {/if}" href={url path="/admin/module/DpdLabel/getLabel/{$REF}"}>
+                    {intl l='View' d="dpdlabel.bo.default"}
+                </a>
+                <a class="btn btn-danger pull-right {if !$labelNbr} hidden {/if}" href="{url path='/admin/module/DpdLabel/deleteLabel' orderId=$order_id redirect_url="/admin/order/update/$order_id"} ">
+                    {intl l='Delete' d="dpdlabel.bo.default"}
+                </a>
+                {if !$labelNbr}
+                    <a class="btn btn-primary pull-right" href=#dpdlabel-label-dialog data-toggle="modal">
+                        {intl l='Generate' d="dpdlabel.bo.default"}
+                    </a>
+                    <a class="btn btn-primary pull-right" href=#dpdlabel-retour-label-dialog data-toggle="modal">
+                        {intl l='Generate retour Label' d="dpdlabel.bo.default"}
+                    </a>
+                {/if}
+            </td>
+        {/loop}
+    </tr>
+</table>
+
+{form name="dpdlabel.label.generation.form"}
+
+{capture "dpdlabel_label_creation"}
+    {form_hidden_fields}
+
+    {render_form_field field='weight'}
+{/capture}
+
+
+    {include
+    file = "includes/generic-create-dialog.html"
+
+    dialog_id    = "dpdlabel-label-dialog"
+    dialog_title = {intl l="Create label" d='dpdlabel.bo.default'}
+    dialog_body  = {$smarty.capture.dpdlabel_label_creation nofilter}
+
+    dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}
+    dialog_cancel_label = {intl l="Cancel" d='dpdlabel.bo.default'}
+
+    form_action        = {url path="/admin/module/DpdLabel/generateLabel" orderId=$order_id}
+    form_enctype       = {form_enctype}
+    form_error_message = $form_error_message
+    }
+
+    {include
+    file = "includes/generic-create-dialog.html"
+
+    dialog_id    = "dpdlabel-retour-label-dialog"
+    dialog_title = {intl l="Create label" d='dpdlabel.bo.default'}
+    dialog_body  = {$smarty.capture.dpdlabel_label_creation nofilter}
+
+    dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}
+    dialog_cancel_label = {intl l="Cancel" d='dpdlabel.bo.default'}
+
+    form_action        = {url path="/admin/module/DpdLabel/generateLabel" orderId=$order_id retour=1}
+    form_enctype       = {form_enctype}
+    form_error_message = $form_error_message
+    }
+
+{/form}
