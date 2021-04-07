@@ -17,6 +17,15 @@
         <service id="dpdlabel.labels.smarty.plugin" class="DpdLabel\Smarty\Plugins\DpdLabelNumber" scope="request">
             <tag name="thelia.parser.register_plugin" />
         </service>
+
+        <service id="dpdlabel.generate.label.service" class="DpdLabel\Service\LabelService">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="picking.dpdlabel.generate.label.listener" class="DpdLabel\EventListeners\GenerateLabelListener">
+            <argument type="service" id="service_container"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 
     <hooks>

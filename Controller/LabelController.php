@@ -4,18 +4,12 @@ namespace DpdLabel\Controller;
 
 
 use DpdLabel\DpdLabel;
-use DpdLabel\Model\DpdlabelLabels;
 use DpdLabel\Model\DpdlabelLabelsQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
-use Thelia\Core\Translation\Translator;
-use Thelia\Model\ConfigQuery;
-use Thelia\Model\CountryQuery;
-use Thelia\Model\Order;
-use Thelia\Model\OrderAddressQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Tools\URL;
 
@@ -60,9 +54,10 @@ class LabelController extends BaseAdminController
                 ]));
             }
 
-            $err = $this->createLabel($order, $labelName, $data['weight']);
+            $service = $this->getContainer()->get('dpdlabel.generate.label.service');
+            $err = $service->createLabel($order, $labelName, $data['weight']);
 
-            if ($err) {
+            if (is_string($err)) {
                 return $this->generateRedirect(URL::getInstance()->absoluteUrl("admin/module/DpdLabel/labels", [
                     "err" => $err
                 ]));
@@ -107,9 +102,10 @@ class LabelController extends BaseAdminController
             ]));
         }
 
-        $err = $this->createLabel($order, $labelName, $data['weight'], $retour);
+        $service = $this->getContainer()->get('dpdlabel.generate.label.service');
+        $err = $service->createLabel($order, $labelName, $data['weight'], $retour);
 
-        if ($err) {
+        if (is_string($err)) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [
                 "err" => $err
             ]));
@@ -178,157 +174,5 @@ class LabelController extends BaseAdminController
 
         return $this->generateRedirect(URL::getInstance()->absoluteUrl($this->getRequest()->get("redirect_url")));
 
-    }
-
-    /**
-     * @return \Thelia\Core\HttpFoundation\Response
-     * @throws \Propel\Runtime\Exception\PropelException
-     */
-    public function createLabelAction()
-    {
-        $orderId = $this->getRequest()->get("order_id");
-        $weight = $this->getRequest()->get("weight");
-
-        if (!$orderId) {
-            return $this->jsonResponse(json_encode(["error" => "order_id argument not found"]), 400);
-        }
-
-        if (!$weight) {
-            return $this->jsonResponse(json_encode(["error" => "weight argument not found"]), 400);
-        }
-
-        $order = OrderQuery::create()->filterById($orderId)->findOne();
-        $labelName = DpdLabel::DPD_LABEL_DIR . DS . $order->getRef() . ".pdf";
-
-        $err = $this->createLabel($order, $labelName, $weight);
-
-        if ($err) {
-            return $this->jsonResponse(json_encode(["error" => $err]));
-        }
-
-        return $this->jsonResponse(json_encode(["file_path" => $labelName]));
-    }
-
-    /**
-     * @param Order $order
-     * @param $labelName
-     * @param $weight
-     * @param int $retour
-     * @return null|string
-     * @throws \Propel\Runtime\Exception\PropelException
-     */
-    protected function createLabel(Order $order, $labelName, $weight, $retour = null)
-    {
-        $data = $this->writeData($order, $weight, $retour);
-
-        $DpdWSD = DpdLabel::DPD_WSDL;
-
-        if (1 === (int)DpdLabel::getConfigValue(DpdLabel::API_IS_TEST)) {
-            $DpdWSD = DpdLabel::DPD_WSDL_TEST;
-        }
-
-        $client = new \SoapClient($DpdWSD, array("trace" => 1, "exception" => 1, 'encoding' => 'ISO-8859-1'));
-
-        try {
-            $header = new \SoapHeader('http://www.cargonet.software', 'UserCredentials', $data["Header"]);
-            $client->__setSoapHeaders($header);
-            if ($retour) {
-                $response = $client->CreateReverseInverseShipmentWithLabels(["request" => $data["Body"]]);
-            } else {
-                $response = $client->CreateShipmentWithLabels(["request" => $data["Body"]]);
-            }
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-
-        if ($retour) {
-            $shipments = $response->CreateReverseInverseShipmentWithLabelsResult->shipment;
-            $labels = $response->CreateReverseInverseShipmentWithLabelsResult->labels->Label;
-        } else {
-            $shipments = $response->CreateShipmentWithLabelsResult->shipments->Shipment;
-            $labels = $response->CreateShipmentWithLabelsResult->labels->Label;
-        }
-
-        if (false === @file_put_contents($labelName, $labels[0]->label)) {
-            return Translator::getInstance()->trans("L'étiquette n'a pas pu être sauvegardée dans $labelName", DpdLabel::DOMAIN_NAME);
-        }
-
-
-        $label = new DpdlabelLabels();
-        $label
-            ->setOrderId($order->getId())
-            ->setLabelNumber($shipments->parcelnumber)
-            ->save();
-
-
-        return null;
-    }
-
-    /**
-     * @param Order $order
-     * @param $weight
-     * @param null $retour
-     * @return mixed
-     * @throws \Propel\Runtime\Exception\PropelException
-     */
-    protected function writeData(Order $order, $weight, $retour = null)
-    {
-
-        $data = DpdLabel::getApiConfig();
-
-        $shopCountry = CountryQuery::create()->filterById(ConfigQuery::create()->filterByName("store_country")->findOne()->getValue())->findOne();
-
-        $ApiData["Header"] = [
-            "userid" => $data['userId'],
-            "password" => $data['password']
-        ];
-
-        $deliveryAddress = OrderAddressQuery::create()->filterById($order->getDeliveryOrderAddressId())->findOne();
-
-        $receiveraddress = [
-            'name' => $deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname(),
-            'countryPrefix' => $deliveryAddress->getCountry()->getIsoalpha2(),
-            'city' => $deliveryAddress->getCity(),
-            'zipCode' => $deliveryAddress->getZipcode(),
-            'street' => $deliveryAddress->getAddress1(),
-            'phoneNumber' => $deliveryAddress->getPhone() ?: "x",
-            'faxNumber' => '',
-            'geoX' => '',
-            'geoY' => ''
-        ];
-
-        $shipperaddress = [
-            'name' => $data['shipperName'],
-            'countryPrefix' => $data['shipperCountry'],
-            'city' => $data['shipperCity'],
-            'zipCode' => $data['shipperZipCode'],
-            'street' => $data['shipperAddress1'],
-            'phoneNumber' => $data['shipperPhone'],
-            'faxNumber' => $data['shipperFax'],
-            'geoX' => '',
-            'geoY' => ''
-        ];
-
-        $label = array(
-            'type' => 'PDF',
-        );
-
-        $ApiData["Body"] = [
-            "customer_countrycode" => (int)$shopCountry->getIsocode(),
-            "customer_centernumber" => (int)$data['center_number'],
-            "customer_number" => (int)$data['customer_number'],
-            "receiveraddress" => $receiveraddress,
-            "shipperaddress" => $shipperaddress,
-            "weight" => $weight,
-            "referencenumber" => $order->getRef(),
-            "labelType" => $label
-        ];
-
-        if ($retour) {
-            $ApiData["Body"]["expire_offset"] = 30;
-            $ApiData["Body"]["refasbarcode"] = false;
-        }
-
-        return $ApiData;
     }
 }
