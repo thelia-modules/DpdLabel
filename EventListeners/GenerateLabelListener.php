@@ -3,22 +3,29 @@
 namespace DpdLabel\EventListeners;
 
 
+use DpdLabel\Service\LabelService;
 use Picking\Event\GenerateLabelEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Controller\Admin\BaseAdminController;
 
-
+/**
+ * Class GenerateLabelListener
+ *
+ * This class is used only when you have the Picking module
+ *
+ * @package DpdLabel\EventListeners
+ */
 class GenerateLabelListener extends BaseAdminController implements EventSubscriberInterface
 {
-    protected $container;
+    protected $service;
 
     /**
-     * @param ContainerInterface $container
+     * @param LabelService $service
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(LabelService $service)
     {
-        $this->container = $container;
+        $this->service = $service;
     }
 
     /**
@@ -30,11 +37,9 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
         if ($deliveryModuleCode === "DpdPickup") {
             $data = [];
             $orderId = $event->getOrder()->getId();
-            $data['new_status'] = '';
             $data['order_id'] = $orderId;
             $data['weight'] = $event->getWeight();
-            $service = $this->container->get('dpdlabel.generate.label.service');
-            $event->setResponse($service->generateLabel($data));
+            $event->setResponse($this->service->generateLabel($data));
         }
     }
 
