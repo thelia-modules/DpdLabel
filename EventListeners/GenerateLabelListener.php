@@ -18,14 +18,14 @@ use Thelia\Controller\Admin\BaseAdminController;
  */
 class GenerateLabelListener extends BaseAdminController implements EventSubscriberInterface
 {
-    protected $service;
+    protected $labelService;
 
     /**
-     * @param LabelService $service
+     * @param LabelService $labelService
      */
-    public function __construct(LabelService $service)
+    public function __construct(LabelService $labelService)
     {
-        $this->service = $service;
+        $this->labelService = $labelService;
     }
 
     /**
