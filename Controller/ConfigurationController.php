@@ -34,6 +34,7 @@ class ConfigurationController extends BaseAdminController
             DpdLabel::setConfigValue(DpdLabel::API_PASSWORD, $data["password"]);
             DpdLabel::setConfigValue(DpdLabel::API_CENTER_NUMBER, $data["center_number"]);
             DpdLabel::setConfigValue(DpdLabel::API_CUSTOMER_NUMBER, $data["customer_number"]);
+            DpdLabel::setConfigValue(DpdLabel::API_LABEL_TYPE, $data["label_type"]);
             DpdLabel::setConfigValue(DpdLabel::API_IS_TEST, $data["isTest"]);
             DpdLabel::setConfigValue(DpdLabel::API_SHIPPER_NAME, $data["shipper_name"]);
             DpdLabel::setConfigValue(DpdLabel::API_SHIPPER_ADDRESS1, $data["shipper_address1"]);

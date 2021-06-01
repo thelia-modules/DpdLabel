@@ -25,6 +25,7 @@ class DpdLabel extends BaseModule
     const API_PASSWORD = "dpdlabel_password";
     const API_CENTER_NUMBER = "dpdlabel_center_number";
     const API_CUSTOMER_NUMBER = "dpdlabel_customer_number";
+    const API_LABEL_TYPE = "dpdlabel_label_type";
     const API_IS_TEST = "dpdlabel_is_test";
 
     const API_SHIPPER_NAME = "dpdlabel_shipper_name";
@@ -65,6 +66,7 @@ class DpdLabel extends BaseModule
         $data['password'] = self::getConfigValue(self::API_PASSWORD);
         $data['center_number'] = self::getConfigValue(self::API_CENTER_NUMBER);
         $data['customer_number'] = self::getConfigValue(self::API_CUSTOMER_NUMBER);
+        $data['label_type'] = self::getConfigValue(self::API_LABEL_TYPE);
         $data['isTest'] = (int)self::getConfigValue(self::API_IS_TEST);
         $data['shipperName'] = self::getConfigValue(self::API_SHIPPER_NAME);
         $data['shipperAddress1'] = self::getConfigValue(self::API_SHIPPER_ADDRESS1);
