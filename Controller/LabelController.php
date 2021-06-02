@@ -122,8 +122,12 @@ class LabelController extends BaseAdminController
     public function downloadAction($base64EncodedFilename)
     {
         $fileName = base64_decode($base64EncodedFilename);
+        [ 'filename' => $fileNameWithoutExt, 'dirname' => $dirname ] = pathinfo($fileName);
+        $fileNameWithoutExt = $dirname.'/'.$fileNameWithoutExt;
+        $files = glob($fileNameWithoutExt.'.*');
 
-        if (file_exists($fileName)) {
+        if (!empty($files) && file_exists($files[0])) {
+            $fileName = $files[0];
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="' . basename($fileName) . '"');
@@ -148,12 +152,13 @@ class LabelController extends BaseAdminController
         $labelDir = DpdLabel::DPD_LABEL_DIR;
 
         $file = $labelDir . DS . $orderRef;
-        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
-        $file = $labelService->setLabelNameExtension($file);
+        $files = glob($file.'.*');
 
-        $response = new BinaryFileResponse($file);
+        if (!empty($files) && file_exists($files[0])) {
+            return new BinaryFileResponse($files[0]);
+        }
 
-        return $response;
+        return '';
     }
 
     /**
@@ -174,11 +179,11 @@ class LabelController extends BaseAdminController
 
         $fs = new Filesystem();
 
-        $labelName = $labelDir . DS . $label->getOrder();
-        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
-        $labelName = $labelService->setLabelNameExtension($labelName);
+        $labelName = $labelDir . DS . $label->getOrder()->getRef();
 
-        $fs->remove($labelName);
+        foreach (glob($labelName.'.*') as $filename) {
+            $fs->remove($filename);
+        }
 
         $label->delete();
 
