@@ -3,6 +3,7 @@
 namespace DpdLabel\Service;
 
 use DpdLabel\DpdLabel;
+use DpdLabel\Form\ApiConfigurationForm;
 use DpdLabel\Model\DpdlabelLabels;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\HttpFoundation\JsonResponse;
@@ -45,7 +46,8 @@ class LabelService
         }
 
         $order = OrderQuery::create()->filterById($orderId)->findOne();
-        $labelName = DpdLabel::DPD_LABEL_DIR . DS . $order->getRef() . ".pdf";
+        $labelName = DpdLabel::DPD_LABEL_DIR . DS . $order->getRef();
+        $labelName = $this->setLabelNameExtension($labelName);
 
         $label = $this->createLabel($order, $labelName, $weight);
 
@@ -167,10 +169,6 @@ class LabelService
             'geoY' => ''
         ];
 
-        $label = array(
-            'type' => 'PDF',
-        );
-
         $ApiData["Body"] = [
             "customer_countrycode" => (int)$shopCountry->getIsocode(),
             "customer_centernumber" => (int)$data['center_number'],
@@ -179,7 +177,7 @@ class LabelService
             "shipperaddress" => $shipperaddress,
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
-            "labelType" => $label
+            "labelType" => ApiConfigurationForm::LABEL_TYPE_CHOICES[$data['label_type']]
         ];
 
         if ($retour) {
@@ -188,5 +186,28 @@ class LabelService
         }
 
         return $ApiData;
+    }
+
+    public function setLabelNameExtension($labelName)
+    {
+        switch (ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)]) {
+            case 'PDF':
+            case 'PDF_A6':
+                $labelName .= '.pdf';
+                break;
+            case 'PNG':
+                $labelName .= '.png';
+                break;
+            case 'EPL':
+                $labelName .= '.epl';
+                break;
+            case 'ZPL':
+            case 'ZPL300':
+                $labelName .= '.zpl';
+                break;
+            default:
+                break;
+        }
+        return $labelName;
     }
 }

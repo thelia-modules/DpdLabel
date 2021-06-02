@@ -5,12 +5,22 @@ namespace DpdLabel\Form;
 
 use DpdLabel\DpdLabel;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
 
 class ApiConfigurationForm extends BaseForm
 {
+    const LABEL_TYPE_CHOICES = [
+        'PDF',
+        'PDF_A6',
+        'PNG',
+        'EPL',
+        'ZPL',
+        'ZPL300'
+    ];
+
     protected function buildForm()
     {
         $data = DpdLabel::getApiConfig();
@@ -57,7 +67,19 @@ class ApiConfigurationForm extends BaseForm
                     "label" => Translator::getInstance()->trans("Customer number", [], DpdLabel::DOMAIN_NAME),
                     "label_attr" => [
                         "for" => "customer_number",
+                    ]
+                ]
+            )
+            ->add("label_type",
+                ChoiceType::class,
+                [
+                    'required' => true,
+                    'data' => $data['label_type'],
+                    "label" => Translator::getInstance()->trans("Label type", [], DpdLabel::DOMAIN_NAME),
+                    "label_attr" => [
+                        "for" => "label_type",
                     ],
+                    'choices' => self::LABEL_TYPE_CHOICES
                 ]
             )
             ->add("isTest",

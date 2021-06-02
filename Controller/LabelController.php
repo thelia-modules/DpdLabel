@@ -4,6 +4,7 @@ namespace DpdLabel\Controller;
 
 
 use DpdLabel\DpdLabel;
+use DpdLabel\Form\ApiConfigurationForm;
 use DpdLabel\Model\DpdlabelLabelsQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -39,7 +40,10 @@ class LabelController extends BaseAdminController
         }
         $order = OrderQuery::create()->filterById($orderId)->findOne();
 
-        $labelName = $labelDir . DS . $order->getRef() . ".pdf";
+        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
+
+        $labelName = $labelDir . DS . $order->getRef();
+        $labelName = $labelService->setLabelNameExtension($labelName);
 
         $err = null;
 
@@ -54,8 +58,7 @@ class LabelController extends BaseAdminController
                 ]));
             }
 
-            $service = $this->getContainer()->get('dpdlabel.generate.label.service');
-            $err = $service->createLabel($order, $labelName, $data['weight']);
+            $err = $labelService->createLabel($order, $labelName, $data['weight']);
 
             if (is_string($err)) {
                 return $this->generateRedirect(URL::getInstance()->absoluteUrl("admin/module/DpdLabel/labels", [
@@ -83,8 +86,10 @@ class LabelController extends BaseAdminController
 
         $order = OrderQuery::create()->filterById($orderId)->findOne();
 
+        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
         $labelDir = DpdLabel::DPD_LABEL_DIR;
-        $labelName = $labelDir . DS . $order->getRef() . ".pdf";
+        $labelName = $labelDir . DS . $order->getRef();
+        $labelName = $labelService->setLabelNameExtension($labelName);
 
         $fileSystem = new Filesystem();
 
@@ -102,8 +107,7 @@ class LabelController extends BaseAdminController
             ]));
         }
 
-        $service = $this->getContainer()->get('dpdlabel.generate.label.service');
-        $err = $service->createLabel($order, $labelName, $data['weight'], $retour);
+        $err = $labelService->createLabel($order, $labelName, $data['weight'], $retour);
 
         if (is_string($err)) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [
@@ -143,7 +147,9 @@ class LabelController extends BaseAdminController
 
         $labelDir = DpdLabel::DPD_LABEL_DIR;
 
-        $file = $labelDir . DS . $orderRef . ".pdf";
+        $file = $labelDir . DS . $orderRef;
+        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
+        $file = $labelService->setLabelNameExtension($file);
 
         $response = new BinaryFileResponse($file);
 
@@ -168,7 +174,11 @@ class LabelController extends BaseAdminController
 
         $fs = new Filesystem();
 
-        $fs->remove($labelDir . DS . $label->getOrder() . ".pdf");
+        $labelName = $labelDir . DS . $label->getOrder();
+        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
+        $labelName = $labelService->setLabelNameExtension($labelName);
+
+        $fs->remove($labelName);
 
         $label->delete();
 
