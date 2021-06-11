@@ -146,11 +146,11 @@ class LabelService
         $deliveryAddress = OrderAddressQuery::create()->filterById($order->getDeliveryOrderAddressId())->findOne();
 
         $receiveraddress = [
-            'name' => $deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname(),
+            'name' => utf8_decode($deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname()),
             'countryPrefix' => $deliveryAddress->getCountry()->getIsoalpha2(),
-            'city' => $deliveryAddress->getCity(),
+            'city' => utf8_decode($deliveryAddress->getCity()),
             'zipCode' => $deliveryAddress->getZipcode(),
-            'street' => $deliveryAddress->getAddress1(),
+            'street' => utf8_decode($deliveryAddress->getAddress1()),
             'phoneNumber' => $deliveryAddress->getPhone() ?: "x",
             'faxNumber' => '',
             'geoX' => '',
@@ -158,11 +158,11 @@ class LabelService
         ];
 
         $shipperaddress = [
-            'name' => $data['shipperName'],
+            'name' => utf8_decode($data['shipperName']),
             'countryPrefix' => $data['shipperCountry'],
-            'city' => $data['shipperCity'],
+            'city' => utf8_decode($data['shipperCity']),
             'zipCode' => $data['shipperZipCode'],
-            'street' => $data['shipperAddress1'],
+            'street' => utf8_decode($data['shipperAddress1']),
             'phoneNumber' => $data['shipperPhone'],
             'faxNumber' => $data['shipperFax'],
             'geoX' => '',
