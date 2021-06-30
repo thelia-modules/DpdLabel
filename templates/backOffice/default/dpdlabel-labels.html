@@ -9,12 +9,12 @@
     {assign "currencySymbol" $SYMBOL}
     {/loop}
 
-    {assign "err" $smarty.get.err}
+    {assign "err" $smarty.get.err|default:null}
 
     <div class="row">
         <div class="col-md-12">
             <div class="general-block-decorator">
-                {if $err}
+                {if $err|default:null}
                     <div class="alert alert-danger">{$err}</div>
                 {/if}
                 <div class="table-responsive">
@@ -81,11 +81,11 @@
     </div>
 
 
-    {if $smarty.get.file}
+    {if $smarty.get.file|default:null}
         <iframe style="width:100%;height:20px;border:none" src="{url path="/admin/module/DpdLabel/labels-file/%hash" hash={$smarty.get.file}}"></iframe>
     {/if}
 
-    {form name="dpdlabel.label.generation.form"}
+    {form name="dpdlabel_label_generation_form"}
 
     {capture "dpdlabel_label_creation"}
         {form_hidden_fields}

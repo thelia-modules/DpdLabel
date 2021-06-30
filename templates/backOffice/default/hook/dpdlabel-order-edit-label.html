@@ -1,10 +1,10 @@
-{assign "err" $smarty.get.err}
+{assign "err" $smarty.get.err|default:null}
 <br>
 <div class="title title-without-tabs clearfix">
     {intl l='DPD label' d="dpdlabel.bo.default"}
 </div>
 {if $err}
-    <div class="alert alert-danger">{$err}</div>
+    <div class="alert alert-danger">{$err|default:null}</div>
 {/if}
 <table class="table table-striped">
     <tr>
@@ -44,7 +44,7 @@
     </tr>
 </table>
 
-{form name="dpdlabel.label.generation.form"}
+{form name="dpdlabel_label_generation_form"}
 
 {capture "dpdlabel_label_creation"}
     {form_hidden_fields}
