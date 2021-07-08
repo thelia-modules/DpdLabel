@@ -13,6 +13,7 @@
 namespace DpdLabel;
 
 use Propel\Runtime\Connection\ConnectionInterface;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Thelia\Install\Database;
 use Thelia\Module\BaseModule;
 
@@ -48,7 +49,7 @@ class DpdLabel extends BaseModule
 
     const DPD_LABEL_DIR = THELIA_LOCAL_DIR . "DpdLabel";
 
-    public function postActivation(ConnectionInterface $con = null)
+    public function postActivation(ConnectionInterface $con = null): void
     {
         $database = new Database($con->getWrappedConnection());
 
@@ -77,5 +78,13 @@ class DpdLabel extends BaseModule
         $data['shipperFax'] = self::getConfigValue(self::API_SHIPPER_FAX);
 
         return $data;
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }

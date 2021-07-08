@@ -32,9 +32,9 @@ class LabelGenerationForm extends BaseForm
             );
     }
 
-    public function getName()
+    public static function getName()
     {
-        return "dpdlabel-label-generation-form";
+        return "dpdlabel_label_generation_form";
     }
 
 }

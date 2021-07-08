@@ -79,7 +79,7 @@ class ApiConfigurationForm extends BaseForm
                     "label_attr" => [
                         "for" => "label_type",
                     ],
-                    'choices' => self::LABEL_TYPE_CHOICES
+                    'choices' => array_flip(self::LABEL_TYPE_CHOICES)
                 ]
             )
             ->add("isTest",
@@ -194,8 +194,8 @@ class ApiConfigurationForm extends BaseForm
             );
     }
 
-    public function getName()
+    public static function getName()
     {
-        return "dpdlabel-api-config-form";
+        return "dpdlabel_api_config_form";
     }
 }

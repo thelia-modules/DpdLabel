@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="dpdlabel.api.config" path="/admin/module/DpdLabel/api-config" methods="post">
+    <!--<route id="dpdlabel.api.config" path="/admin/module/DpdLabel/api-config" methods="post">
         <default key="_controller">DpdLabel\Controller\ConfigurationController::configureApiAction</default>
     </route>
 
@@ -34,5 +34,5 @@
 
     <route id="dpdlabel.create.label" path="/admin/picking/DpdLabel/createLabel">
         <default key="_controller">DpdLabel\Controller\LabelController::createLabelAction</default>
-    </route>
+    </route>-->
 </routes>

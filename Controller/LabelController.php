@@ -5,31 +5,43 @@ namespace DpdLabel\Controller;
 
 use DpdLabel\DpdLabel;
 use DpdLabel\Form\ApiConfigurationForm;
+use DpdLabel\Form\LabelGenerationForm;
 use DpdLabel\Model\DpdlabelLabelsQuery;
+use DpdLabel\Service\LabelService;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Model\OrderQuery;
 use Thelia\Tools\URL;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/admin/module/DpdLabel", name="dpdlabel")
+ */
 class LabelController extends BaseAdminController
 {
-    public function showAction()
+    /**
+     * @Route("/labels", name="_labels", methods="GET")
+     */
+    public function showAction(RequestStack $requestStack)
     {
-        $err = $this->getRequest()->get("err");
+        $err =  $requestStack->getCurrentRequest()->get("err");
         return $this->render('dpdlabel-labels', [
             "err" => $err
         ]);
     }
 
     /**
+     * @Route("/saveLabel", name="_save_label", methods="GET")
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function saveAction()
+    public function saveAction(RequestStack $requestStack, LabelService $labelService)
     {
-        $orderId = $this->getRequest()->get("orderId");
+        $request = $requestStack->getCurrentRequest();
+        $orderId = $request->get("orderId");
 
         $labelDir = DpdLabel::DPD_LABEL_DIR;
 
@@ -40,15 +52,11 @@ class LabelController extends BaseAdminController
         }
         $order = OrderQuery::create()->filterById($orderId)->findOne();
 
-        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
-
         $labelName = $labelDir . DS . $order->getRef();
         $labelName = $labelService->setLabelNameExtension($labelName);
 
-        $err = null;
-
         if (!$label = dpdlabelLabelsQuery::create()->filterByOrderId($order->getId())->findOne()) {
-            $baseForm = $this->createForm("dpdlabel.label.generation.form");
+            $baseForm = $this->createForm(LabelGenerationForm::getName());
             try {
                 $form = $this->validateForm($baseForm);
                 $data = $form->getData();
@@ -78,15 +86,16 @@ class LabelController extends BaseAdminController
     /**
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Propel\Runtime\Exception\PropelException
+     * @Route("/generateLabel", name="_generate_label", methods="POST")
      */
-    public function generateLabelAction()
+    public function generateLabelAction(RequestStack $requestStack, LabelService $labelService)
     {
-        $orderId = $this->getRequest()->get("orderId");
-        $retour = $this->getRequest()->get("retour");
+        $request = $requestStack->getCurrentRequest();
+        $orderId = $request->get("orderId");
+        $retour = $request->get("retour");
 
         $order = OrderQuery::create()->filterById($orderId)->findOne();
 
-        $labelService = $this->getContainer()->get('dpdlabel.generate.label.service');
         $labelDir = DpdLabel::DPD_LABEL_DIR;
         $labelName = $labelDir . DS . $order->getRef();
         $labelName = $labelService->setLabelNameExtension($labelName);
@@ -97,7 +106,7 @@ class LabelController extends BaseAdminController
             $fileSystem->mkdir($labelDir, 0777);
         }
 
-        $baseForm = $this->createForm("dpdlabel.label.generation.form");
+        $baseForm = $this->createForm(LabelGenerationForm::getName());
         try {
             $form = $this->validateForm($baseForm);
             $data = $form->getData();
@@ -118,7 +127,9 @@ class LabelController extends BaseAdminController
         return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId));
     }
 
-
+    /**
+     * @Route("/labels-file/{base64EncodedFilename}", name="_labels-file_download", methods="GET")
+     */
     public function downloadAction($base64EncodedFilename)
     {
         $fileName = base64_decode($base64EncodedFilename);
@@ -143,6 +154,9 @@ class LabelController extends BaseAdminController
         return $this->generateRedirect(URL::getInstance()->absoluteUrl("/admin/module/DpdLabel/labels"));
     }
 
+    /**
+     * @Route("/getLabel/{orderRef}", name="_get_label", methods="GET")
+     */
     public function getLabelAction($orderRef)
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
@@ -164,6 +178,7 @@ class LabelController extends BaseAdminController
     /**
      * @return mixed|\Symfony\Component\HttpFoundation\Response
      * @throws \Propel\Runtime\Exception\PropelException
+     * @Route("/deleteLabel", name="_delete_label", methods="GET")
      */
     public function deleteLabelAction()
     {

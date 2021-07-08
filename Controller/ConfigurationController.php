@@ -3,26 +3,32 @@
 namespace DpdLabel\Controller;
 
 use DpdLabel\DpdLabel;
+use DpdLabel\Form\ApiConfigurationForm;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\Exception\FormValidationException;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @Route("/admin/module/DpdLabel/api-config", name="dpdlabel_api")
  * Class ConfigurationController
  * @package DpdLabel\Controller
  * @author Etienne Perriere <eperriere@openstudio.fr>
  */
 class ConfigurationController extends BaseAdminController
 {
+    /**
+     * @Route("", name="_config", methods="POST")
+     */
     public function configureApiAction()
     {
         if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['DpdLabel'], [AccessManager::CREATE, AccessManager::UPDATE])) {
             return $response;
         }
 
-        $baseForm = $this->createForm("dpdlabel.api.configuration.form");
+        $baseForm = $this->createForm(ApiConfigurationForm::getName());
 
         $errorMessage = null;
 

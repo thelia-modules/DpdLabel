@@ -9,11 +9,11 @@
     </loops>
 
     <forms>
-        <form name="dpdlabel.api.configuration.form" class="DpdLabel\Form\ApiConfigurationForm" />
-        <form name="dpdlabel.label.generation.form" class="DpdLabel\Form\LabelGenerationForm" />
+        <form name="dpdlabel_api_config_form" class="DpdLabel\Form\ApiConfigurationForm" />
+        <form name="dpdlabel_label_generation_form" class="DpdLabel\Form\LabelGenerationForm" />
     </forms>
 
-    <services>
+    <!--<services>
         <service id="dpdlabel.labels.smarty.plugin" class="DpdLabel\Smarty\Plugins\DpdLabelNumber" scope="request">
             <tag name="thelia.parser.register_plugin" />
         </service>
@@ -26,7 +26,7 @@
             <argument type="service" id="dpdlabel.generate.label.service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
-    </services>
+    </services>-->
 
     <hooks>
         <hook id="dpdlabel.back.hook" class="DpdLabel\Hook\BackHook">
