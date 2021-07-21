@@ -111,7 +111,7 @@ class LabelService
         }
 
         if (false === @file_put_contents($labelName, $labels[0]->label)) {
-            return Translator::getInstance()->trans("L'étiquette n'a pas pu être sauvegardée dans $labelName", DpdLabel::DOMAIN_NAME);
+            return Translator::getInstance()->trans("L'étiquette n'a pas pu être sauvegardée dans $labelName",[], DpdLabel::DOMAIN_NAME);
         }
 
 

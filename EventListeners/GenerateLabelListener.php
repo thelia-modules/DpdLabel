@@ -39,7 +39,7 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
             $orderId = $event->getOrder()->getId();
             $data['order_id'] = $orderId;
             $data['weight'] = $event->getWeight();
-            $event->setResponse($this->service->generateLabel($data));
+            $event->setResponse($this->labelService->generateLabel($data));
         }
     }
 
