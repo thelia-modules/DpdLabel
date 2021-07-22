@@ -126,8 +126,9 @@ class LabelService
 
         $label = DpdlabelLabelsQuery::create()
             ->filterByOrderId($order->getId())
-            ->findOneOrCreate()
-            ->setOrderId($order->getId())
+            ->findOneOrCreate();
+
+        $label->setOrderId($order->getId())
             ->setLabelNumber($shipments->parcelnumber)
             ->save();
 
