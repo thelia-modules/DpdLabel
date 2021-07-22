@@ -5,7 +5,9 @@ namespace DpdLabel\Service;
 use DpdLabel\DpdLabel;
 use DpdLabel\Form\ApiConfigurationForm;
 use DpdLabel\Model\DpdlabelLabels;
+use DpdLabel\Model\DpdlabelLabelsQuery;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Translation\Translator;
 use Thelia\Model\ConfigQuery;
@@ -110,13 +112,21 @@ class LabelService
             $labels = $response->CreateShipmentWithLabelsResult->labels->Label;
         }
 
+        $labelDir = DpdLabel::DPD_LABEL_DIR;
+        $allOrderLabels = $labelDir . DS . $order->getRef();
+        $fs = new Filesystem();
+
+        foreach (glob($allOrderLabels.'.*') as $filename) {
+            $fs->remove($filename);
+        }
         if (false === @file_put_contents($labelName, $labels[0]->label)) {
             return Translator::getInstance()->trans("L'étiquette n'a pas pu être sauvegardée dans $labelName",[], DpdLabel::DOMAIN_NAME);
         }
 
 
-        $label = new DpdlabelLabels();
-        $label
+        $label = DpdlabelLabelsQuery::create()
+            ->filterByOrderId($order->getId())
+            ->findOneOrCreate()
             ->setOrderId($order->getId())
             ->setLabelNumber($shipments->parcelnumber)
             ->save();
