@@ -15,7 +15,7 @@ class ApiConfigurationForm extends BaseForm
     const LABEL_TYPE_CHOICES = [
         'PDF',
         'PDF_A6',
-        'PNG',
+        'Default',
         'EPL',
         'ZPL',
         'ZPL300'
@@ -75,7 +75,7 @@ class ApiConfigurationForm extends BaseForm
                 [
                     'required' => true,
                     'data' => $data['label_type'],
-                    "label" => Translator::getInstance()->trans("Label type", [], DpdLabel::DOMAIN_NAME),
+                    "label" => Translator::getInstance()->trans("Label type (Default = PNG)", [], DpdLabel::DOMAIN_NAME),
                     "label_attr" => [
                         "for" => "label_type",
                     ],

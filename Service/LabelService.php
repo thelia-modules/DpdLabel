@@ -177,7 +177,7 @@ class LabelService
             "shipperaddress" => $shipperaddress,
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
-            "labelType" => ApiConfigurationForm::LABEL_TYPE_CHOICES[$data['label_type']]
+            "labelType" => ["type" => ApiConfigurationForm::LABEL_TYPE_CHOICES[$data['label_type']]]
         ];
 
         if ($retour) {
@@ -195,7 +195,7 @@ class LabelService
             case 'PDF_A6':
                 $labelName .= '.pdf';
                 break;
-            case 'PNG':
+            case 'Default':
                 $labelName .= '.png';
                 break;
             case 'EPL':
