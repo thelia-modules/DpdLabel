@@ -178,10 +178,10 @@ class LabelService
             $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->filterById($deliveryAddress->getId())->findOne();
             $services = [
                 "contact" => [
-                    "sms" => "0689563560",
-                    "email" => "",
+                    "sms" => $deliveryAddress->getPhone() ?: "x",
+                    "email" => $order->getCustomer()->getEmail(),
                     "autotext" => "",
-                    "type" => "AutomaticSMS"
+                    "type" => "No"
                 ],
                 "parcelshop" => [
                     "shopaddress" => [
