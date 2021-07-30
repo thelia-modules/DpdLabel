@@ -10,6 +10,7 @@ use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Translation\Translator;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\CountryQuery;
+use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order;
 use Thelia\Model\OrderAddressQuery;
 use Thelia\Model\OrderQuery;
@@ -118,7 +119,10 @@ class LabelService
         $label = new DpdlabelLabels();
         $label
             ->setOrderId($order->getId())
-            ->setLabelNumber($shipments->parcelnumber)
+            ->setLabelNumber($shipments->barcode)
+            ->save();
+
+        $order->setDeliveryRef($shipments->barcode)
             ->save();
 
         return $label;
@@ -157,6 +161,14 @@ class LabelService
             'geoY' => ''
         ];
 
+        $receiverinfo = [];
+        if ($deliveryAddress->getCompany() !== null && ModuleQuery::create()->filterById($order->getDeliveryModuleId())->findOne()->getCode() === "DpdPickup"){
+            $receiveraddress['name'] = $deliveryAddress->getCompany();
+            $receiverinfo = [
+                'contact' => utf8_decode($deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname())
+            ];
+        }
+
         $shipperaddress = [
             'name' => utf8_decode($data['shipperName']),
             'countryPrefix' => $data['shipperCountry'],
@@ -174,6 +186,7 @@ class LabelService
             "customer_centernumber" => (int)$data['center_number'],
             "customer_number" => (int)$data['customer_number'],
             "receiveraddress" => $receiveraddress,
+            "receiverinfo" => $receiverinfo,
             "shipperaddress" => $shipperaddress,
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
