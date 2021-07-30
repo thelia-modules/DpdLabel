@@ -6,6 +6,7 @@ use DpdLabel\DpdLabel;
 use DpdLabel\Form\ApiConfigurationForm;
 use DpdLabel\Model\DpdlabelLabels;
 use DpdLabel\Model\DpdlabelLabelsQuery;
+use DpdPickup\Model\OrderAddressIcirelaisQuery;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Thelia\Core\HttpFoundation\JsonResponse;
@@ -153,12 +154,13 @@ class LabelService
 
         $shopCountry = CountryQuery::create()->filterById(ConfigQuery::create()->filterByName("store_country")->findOne()->getValue())->findOne();
 
+        $deliveryAddress = $order->getOrderAddressRelatedByDeliveryOrderAddressId();
+
         $ApiData["Header"] = [
             "userid" => $data['userId'],
             "password" => $data['password']
         ];
 
-        $deliveryAddress = OrderAddressQuery::create()->filterById($order->getDeliveryOrderAddressId())->findOne();
         $receiveraddress = [
             'name' => utf8_decode($deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname()),
             'countryPrefix' => $deliveryAddress->getCountry()->getIsoalpha2(),
@@ -171,11 +173,21 @@ class LabelService
             'geoY' => ''
         ];
 
-        $receiverinfo = [];
-        if ($deliveryAddress->getCompany() !== null && ModuleQuery::create()->filterById($order->getDeliveryModuleId())->findOne()->getCode() === "DpdPickup"){
-            $receiveraddress['name'] = $deliveryAddress->getCompany();
-            $receiverinfo = [
-                'contact' => utf8_decode($deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname())
+        $services = [];
+        if (ModuleQuery::create()->filterById($order->getDeliveryModuleId())->findOne()->getCode() === "DpdPickup"){
+            $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->filterById($deliveryAddress->getId())->findOne();
+            $services = [
+                "contact" => [
+                    "sms" => "0689563560",
+                    "email" => "",
+                    "autotext" => "",
+                    "type" => "AutomaticSMS"
+                ],
+                "parcelshop" => [
+                    "shopaddress" => [
+                        "shopid" => $orderAddressIciRelais->getCode(),
+                    ]
+                ]
             ];
         }
 
@@ -196,9 +208,9 @@ class LabelService
             "customer_centernumber" => (int)$data['center_number'],
             "customer_number" => (int)$data['customer_number'],
             "receiveraddress" => $receiveraddress,
-            "receiverinfo" => $receiverinfo,
             "shipperaddress" => $shipperaddress,
             "weight" => $weight,
+            "services" => $services,
             "referencenumber" => $order->getRef(),
             "labelType" => ["type" => ApiConfigurationForm::LABEL_TYPE_CHOICES[$data['label_type']]]
         ];
