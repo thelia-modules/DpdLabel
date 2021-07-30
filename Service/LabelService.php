@@ -130,7 +130,10 @@ class LabelService
             ->findOneOrCreate();
 
         $label->setOrderId($order->getId())
-            ->setLabelNumber($shipments->parcelnumber)
+            ->setLabelNumber($shipments->barcode)
+            ->save();
+
+        $order->setDeliveryRef($shipments->barcode)
             ->save();
 
         return $label;
