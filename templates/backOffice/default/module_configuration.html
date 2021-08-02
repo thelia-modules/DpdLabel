@@ -32,3 +32,30 @@
         </form>
     {/form}
 </div>
+
+
+{loop type="export" name="export" id=$exportId}
+{form name="thelia.export"}
+<form action="{$URL nofilter}" method="post" {form_enctype}>
+    {form_hidden_fields}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="general-block-decorator">
+                <div class="title title-without-tabs">
+                    {intl l='Export'}: {$TITLE}
+                </div>
+
+                {include 'includes/export-form-body.html'}
+
+                {ifloop rel="serializer"}
+                    <div>
+                        <button class="btn btn-primary" type="submit">{intl l="Do this export"}</button>
+                    </div>
+                {/ifloop}
+            </div>
+        </div>
+    </div>
+</form>
+{/form}
+{/loop}
