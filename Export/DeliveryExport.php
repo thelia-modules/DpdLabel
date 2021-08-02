@@ -36,7 +36,7 @@ class DeliveryExport extends AbstractExport
      */
     public function __construct()
     {
-        $this->date = new \DateTime('2021-07-29');
+        $this->date = new \DateTime();
     }
 
     protected function getData()
