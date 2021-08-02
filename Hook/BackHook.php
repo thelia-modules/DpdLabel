@@ -5,13 +5,15 @@ namespace DpdLabel\Hook;
 
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
+use Thelia\Model\ExportQuery;
 use Thelia\Model\OrderQuery;
 
 class BackHook extends BaseHook
 {
     public function onModuleConfig(HookRenderEvent $event)
     {
-        $event->add($this->render('module_configuration.html'));
+        $export = ExportQuery::create()->filterByRef('dpdlabel.export.delivery')->findOne();
+        $event->add($this->render('module_configuration.html',['exportId'=> $export->getId()]));
     }
 
 

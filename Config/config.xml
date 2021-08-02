@@ -35,4 +35,17 @@
             <tag name="hook.event_listener" event="order-edit.bill-top" type="back" method="onOrderBillTop" />
         </hook>
     </hooks>
+
+    <exports>
+        <export id="dpdlabel.export.delivery" category_id="thelia.export.orders" class="DpdLabel\Export\DeliveryExport">
+            <export_descriptive locale="fr_FR">
+                <title>Export DPD</title>
+                <description>Export des livraisons DPD du jour</description>
+            </export_descriptive>
+            <export_descriptive locale="en_US">
+                <title>Export DPD</title>
+                <description>Delivery export of the day</description>
+            </export_descriptive>
+        </export>
+    </exports>
 </config>
