@@ -5,6 +5,7 @@ namespace DpdLabel\Service;
 use DpdLabel\DpdLabel;
 use DpdLabel\Form\ApiConfigurationForm;
 use DpdLabel\Model\DpdlabelLabels;
+use DpdPickup\Model\OrderAddressIcirelaisQuery;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Translation\Translator;
@@ -161,11 +162,21 @@ class LabelService
             'geoY' => ''
         ];
 
-        $receiverinfo = [];
-        if ($deliveryAddress->getCompany() !== null && ModuleQuery::create()->filterById($order->getDeliveryModuleId())->findOne()->getCode() === "DpdPickup"){
-            $receiveraddress['name'] = $deliveryAddress->getCompany();
-            $receiverinfo = [
-                'contact' => utf8_decode($deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname())
+        $services = [];
+        if (ModuleQuery::create()->filterById($order->getDeliveryModuleId())->findOne()->getCode() === "DpdPickup"){
+            $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->filterById($deliveryAddress->getId())->findOne();
+            $services = [
+                "contact" => [
+                    "sms" => $deliveryAddress->getPhone() ?: "x",
+                    "email" => $order->getCustomer()->getEmail(),
+                    "autotext" => "",
+                    "type" => "No"
+                ],
+                "parcelshop" => [
+                    "shopaddress" => [
+                        "shopid" => $orderAddressIciRelais->getCode(),
+                    ]
+                ]
             ];
         }
 
@@ -186,7 +197,7 @@ class LabelService
             "customer_centernumber" => (int)$data['center_number'],
             "customer_number" => (int)$data['customer_number'],
             "receiveraddress" => $receiveraddress,
-            "receiverinfo" => $receiverinfo,
+            "services" => $services,
             "shipperaddress" => $shipperaddress,
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
