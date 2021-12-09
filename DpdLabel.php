@@ -14,6 +14,7 @@ namespace DpdLabel;
 
 use Propel\Runtime\Connection\ConnectionInterface;
 use Thelia\Install\Database;
+use Thelia\Model\Order;
 use Thelia\Module\BaseModule;
 
 class DpdLabel extends BaseModule
@@ -77,5 +78,10 @@ class DpdLabel extends BaseModule
         $data['shipperFax'] = self::getConfigValue(self::API_SHIPPER_FAX);
 
         return $data;
+    }
+
+    public static function getTrackingLink(Order $order)
+    {
+        return "https://tracking.dpd.de/status/". $order->getLang()->getLocale(). "/parcel/". $order->getDeliveryRef();
     }
 }

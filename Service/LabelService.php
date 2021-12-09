@@ -152,7 +152,9 @@ class LabelService
 
         $data = DpdLabel::getApiConfig();
 
-        $shopCountry = CountryQuery::create()->filterById(ConfigQuery::create()->filterByName("store_country")->findOne()->getValue())->findOne();
+        $storeCountry = ConfigQuery::create()->filterByName("store_country")->findOne();
+        $countryId = ($storeCountry) ? $storeCountry->getValue() : 64;
+        $shopCountry = CountryQuery::create()->filterById($countryId)->findOne();
 
         $deliveryAddress = $order->getOrderAddressRelatedByDeliveryOrderAddressId();
 
