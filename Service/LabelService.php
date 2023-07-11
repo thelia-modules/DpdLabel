@@ -55,7 +55,7 @@ class LabelService
 
         if (is_string($label)) {
             return new JsonResponse([
-                'error' => $label
+                'error' => Translator::getInstance()->trans("Sorry, an unexpected error occurred: %err", ['%err' => $label ], DpdLabel::DOMAIN_NAME)
             ]);
         }
 
@@ -113,7 +113,7 @@ class LabelService
         }
 
         if (false === @file_put_contents($labelName, $labels[0]->label)) {
-            return Translator::getInstance()->trans("L'étiquette n'a pas pu être sauvegardée dans $labelName", DpdLabel::DOMAIN_NAME);
+            return Translator::getInstance()->trans("The label data cannot be saved in file %file", ['%file' => $labelName], DpdLabel::DOMAIN_NAME);
         }
 
 

@@ -104,7 +104,7 @@ class ApiConfigurationForm extends BaseForm
                         'for' => 'shipper_name',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans("Dupont & co")
+                        'placeholder' => Translator::getInstance()->trans("Dupont & co", [], DpdLabel::DOMAIN_NAME)
                     ],
                 ]
             )
@@ -118,7 +118,8 @@ class ApiConfigurationForm extends BaseForm
                         'for' => 'shipper_address1',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans("Les Gardelles")
+                        'label' => Translator::getInstance()->trans("Address", [], DpdLabel::DOMAIN_NAME),
+                        'placeholder' => Translator::getInstance()->trans("Les Gardelles", [], DpdLabel::DOMAIN_NAME)
                     ],
                 ]
             )
@@ -132,7 +133,7 @@ class ApiConfigurationForm extends BaseForm
                         'for' => 'shipper_country',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans("FR")
+                        'placeholder' => Translator::getInstance()->trans("FR", [], DpdLabel::DOMAIN_NAME)
                     ],
                 ]
             )
@@ -146,7 +147,7 @@ class ApiConfigurationForm extends BaseForm
                         'for' => 'shipper_city',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans("Paris")
+                        'placeholder' => Translator::getInstance()->trans("Paris", [], DpdLabel::DOMAIN_NAME)
                     ],
                 ]
             )
@@ -160,7 +161,7 @@ class ApiConfigurationForm extends BaseForm
                         'for' => 'shipper_zip_code',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans("93000")
+                        'placeholder' => Translator::getInstance()->trans("93000", [], DpdLabel::DOMAIN_NAME)
                     ],
                 ]
             )
@@ -174,7 +175,7 @@ class ApiConfigurationForm extends BaseForm
                         'for' => 'shipper_phone',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans("0142080910")
+                        'placeholder' => Translator::getInstance()->trans("0142080910", [],DpdLabel::DOMAIN_NAME)
                     ],
                 ]
             )
@@ -188,7 +189,7 @@ class ApiConfigurationForm extends BaseForm
                         'for' => 'shipper_fax',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans("")
+                        'placeholder' => Translator::getInstance()->trans("", [],DpdLabel::DOMAIN_NAME)
                     ],
                 ]
             );

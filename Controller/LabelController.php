@@ -112,7 +112,8 @@ class LabelController extends BaseAdminController
             $data = $form->getData();
         } catch (\Exception $e) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [
-                "err" => $e->getMessage()
+                "err" => $e->getMessage(),
+                "tab" => 'bill'
             ]));
         }
 
@@ -120,11 +121,12 @@ class LabelController extends BaseAdminController
 
         if (is_string($err)) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [
-                "err" => $err
+                "err" => $err,
+                "tab" => 'bill'
             ]));
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId));
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [ "tab" => 'bill' ]));
     }
 
     /**

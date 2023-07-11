@@ -73,6 +73,15 @@
                                     </td>
                                 </tr>
                             {/loop}
+                            {elseloop rel="get-dpdlabel-orders"}
+                            <tr>
+                                <td colspan="99">
+                                    <div class="alert alert-info" style="margin-bottom:0">
+                                        {intl l="There is no DPD label yet. To create your labels, use the label creation tool in the \"Shipping and billing\" tab of your orders." d='dpdlabel.bo.default'}
+                                    </div>
+                                </td>
+                            </tr>
+                            {/elseloop}
                         </tbody>
                     </table>
                 </div>
@@ -90,7 +99,7 @@
     {capture "dpdlabel_label_creation"}
         {form_hidden_fields}
 
-        {render_form_field field='weight'}
+        {render_form_field field='weight' value=$WEIGHT}
     {/capture}
 
 
