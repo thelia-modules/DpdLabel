@@ -41,7 +41,7 @@ class DpdLabel extends BaseModule
     const API_SHIPPER_FAX = "dpdlabel_shipper_fax";
     const API_SHIPPER_MAIL = "dpdlabel_shipper_mail";
 
-    const DPD_WSDL_TEST = "http://92.103.148.116/exa-eprintwebservice/eprintwebservice.asmx?WSDL";
+    const DPD_WSDL_TEST = "https://e-station-testenv.cargonet.software/exa-eprintwebservice/eprintwebservice.asmx?WSDL";
     const DPD_WSDL = "https://e-station.cargonet.software/dpd-eprintwebservice/eprintwebservice.asmx?WSDL";
 
     const STATUS_PAID = 2;
