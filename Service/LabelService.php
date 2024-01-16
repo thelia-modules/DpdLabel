@@ -101,11 +101,8 @@ class LabelService
                 $response = $client->CreateShipmentWithLabelsBc(["request" => $data["Body"]]);
             }
         } catch (\Exception $e) {
-            // return $e->getMessage();
+            return $e->getMessage();
         }
-
-        // If debug is needed
-        // $request = $client->__getLastRequest();
 
         if ($retour) {
             $shipments = $response->CreateReverseInverseShipmentWithLabelsBcResult->shipment;
