@@ -90,29 +90,32 @@ class LabelService
             $DpdWSD = DpdLabel::DPD_WSDL_TEST;
         }
 
-        $client = new \SoapClient($DpdWSD, array("trace" => 1, "exception" => 1, 'encoding' => 'ISO-8859-1'));
+        $client = new \SoapClient($DpdWSD, ["trace" => 1, "exception" => 1]);
 
         try {
             $header = new \SoapHeader('http://www.cargonet.software', 'UserCredentials', $data["Header"]);
             $client->__setSoapHeaders($header);
             if ($retour) {
-                $response = $client->CreateReverseInverseShipmentWithLabels(["request" => $data["Body"]]);
+                $response = $client->CreateReverseInverseShipmentWithLabelsBc(["request" => $data["Body"]]);
             } else {
-                $response = $client->CreateShipmentWithLabels(["request" => $data["Body"]]);
+                $response = $client->CreateShipmentWithLabelsBc(["request" => $data["Body"]]);
             }
         } catch (\Exception $e) {
-            return $e->getMessage();
+            // return $e->getMessage();
         }
+
+        // If debug is needed
+        // $request = $client->__getLastRequest();
 
         if ($retour) {
-            $shipments = $response->CreateReverseInverseShipmentWithLabelsResult->shipment;
-            $labels = $response->CreateReverseInverseShipmentWithLabelsResult->labels->Label;
+            $shipments = $response->CreateReverseInverseShipmentWithLabelsBcResult->shipment;
+            $labels = $response->CreateReverseInverseShipmentWithLabelsBcResult->labels->Label;
         } else {
-            $shipments = $response->CreateShipmentWithLabelsResult->shipments->Shipment;
-            $labels = $response->CreateShipmentWithLabelsResult->labels->Label;
+            $shipments = $response->CreateShipmentWithLabelsBcResult->shipments->ShipmentBc;
+            $labels = $response->CreateShipmentWithLabelsBcResult->labels->Label;
         }
 
-        if (false === @file_put_contents($labelName, $labels[0]->label)) {
+        if (false === @file_put_contents($labelName, $labels->label)) {
             return Translator::getInstance()->trans("The label data cannot be saved in file %file", ['%file' => $labelName], DpdLabel::DOMAIN_NAME);
         }
 
@@ -120,10 +123,10 @@ class LabelService
         $label = new DpdlabelLabels();
         $label
             ->setOrderId($order->getId())
-            ->setLabelNumber($shipments->barcode)
+            ->setLabelNumber($shipments->Shipment->BarcodeId)
             ->save();
 
-        $order->setDeliveryRef($shipments->barcode)
+        $order->setDeliveryRef($shipments->Shipment->BarcodeId)
             ->save();
 
         return $label;
@@ -151,11 +154,11 @@ class LabelService
         $deliveryAddress = OrderAddressQuery::create()->filterById($order->getDeliveryOrderAddressId())->findOne();
 
         $receiveraddress = [
-            'name' => utf8_decode($deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname()),
+            'name' => $deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname(),
             'countryPrefix' => $deliveryAddress->getCountry()->getIsoalpha2(),
-            'city' => utf8_decode($deliveryAddress->getCity()),
+            'city' => $deliveryAddress->getCity(),
             'zipCode' => $deliveryAddress->getZipcode(),
-            'street' => utf8_decode($deliveryAddress->getAddress1()),
+            'street' => $deliveryAddress->getAddress1(),
             'phoneNumber' => $deliveryAddress->getPhone() ?: "x",
             'faxNumber' => '',
             'geoX' => '',
@@ -181,11 +184,11 @@ class LabelService
         }
 
         $shipperaddress = [
-            'name' => utf8_decode($data['shipperName']),
+            'name' => $data['shipperName'],
             'countryPrefix' => $data['shipperCountry'],
-            'city' => utf8_decode($data['shipperCity']),
+            'city' => $data['shipperCity'],
             'zipCode' => $data['shipperZipCode'],
-            'street' => utf8_decode($data['shipperAddress1']),
+            'street' => $data['shipperAddress1'],
             'phoneNumber' => $data['shipperPhone'],
             'faxNumber' => $data['shipperFax'],
             'geoX' => '',
@@ -201,7 +204,9 @@ class LabelService
             "shipperaddress" => $shipperaddress,
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
-            "labelType" => ApiConfigurationForm::LABEL_TYPE_CHOICES[$data['label_type']]
+            "labelType" => [
+                "type" => ApiConfigurationForm::LABEL_TYPE_CHOICES[(int) $data['label_type']]
+            ]
         ];
 
         if ($retour) {
@@ -220,6 +225,7 @@ class LabelService
                 $labelName .= '.pdf';
                 break;
             case 'PNG':
+            case 'BIC3':
                 $labelName .= '.png';
                 break;
             case 'EPL':

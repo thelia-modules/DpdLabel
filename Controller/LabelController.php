@@ -205,6 +205,5 @@ class LabelController extends BaseAdminController
         $label->delete();
 
         return $this->generateRedirect(URL::getInstance()->absoluteUrl($this->getRequest()->get("redirect_url")));
-
     }
 }

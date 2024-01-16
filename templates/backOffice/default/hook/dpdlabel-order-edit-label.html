@@ -27,10 +27,10 @@
                     <a class="btn btn-primary" href="{url path='/admin/module/DpdLabel/saveLabel' labelNbr=$labelNbr orderId=$order_id}">
                         <span class="glyphicon glyphicon-download"></span> {intl l='Download' d="dpdlabel.bo.default"}
                     </a>
-                    <a class="btn btn-info" href={url path="/admin/module/DpdLabel/getLabel/{$REF}"}>
+                    <a class="btn btn-info" target="_blank" href={url path="/admin/module/DpdLabel/getLabel/{$REF}"}>
                         <span class="glyphicon glyphicon-eye-open"></span> {intl l='View' d="dpdlabel.bo.default"}
                     </a>
-                    <a class="btn btn-danger" href="{url path='/admin/module/DpdLabel/deleteLabel' orderId=$order_id redirect_url="/admin/order/update/$order_id"} ">
+                    <a class="btn btn-danger" href="{url path='/admin/module/DpdLabel/deleteLabel' orderId=$order_id redirect_url={url path="/admin/order/update/$order_id" tab="bill"}}">
                         <span class="glyphicon glyphicon-trash"></span> {intl l='Delete' d="dpdlabel.bo.default"}
                     </a>
                 {/if}

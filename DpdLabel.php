@@ -40,7 +40,6 @@ class DpdLabel extends BaseModule
     const API_SHIPPER_PHONE = "dpdlabel_shipper_phone";
     const API_SHIPPER_FAX = "dpdlabel_shipper_fax";
     const API_SHIPPER_MAIL = "dpdlabel_shipper_mail";
-
     const DPD_WSDL_TEST = "https://e-station-testenv.cargonet.software/exa-eprintwebservice/eprintwebservice.asmx?WSDL";
     const DPD_WSDL = "https://e-station.cargonet.software/dpd-eprintwebservice/eprintwebservice.asmx?WSDL";
 
@@ -57,6 +56,14 @@ class DpdLabel extends BaseModule
             $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
 
             self::setConfigValue("is_initialized", 1);
+
+            // Official DPD data test parameters
+            self::setConfigValue(self::API_USER_ID, 'GeoLabelTestEnv');
+            self::setConfigValue(self::API_PASSWORD, 'Geo-67!L@belT%est');
+            self::setConfigValue(self::API_CENTER_NUMBER, '77');
+            self::setConfigValue(self::API_CUSTOMER_NUMBER, '18028');
+            self::setConfigValue(self::API_LABEL_TYPE, 0);
+            self::setConfigValue(self::API_IS_TEST, true);
         }
     }
 
