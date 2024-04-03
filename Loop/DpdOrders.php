@@ -5,6 +5,7 @@ namespace DpdLabel\Loop;
 
 
 use DpdLabel\DpdLabel;
+use DpdLabel\enum\AuthorizedModuleEnum;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Thelia\Core\Template\Loop\Order;
 use Thelia\Model\ModuleQuery;
@@ -15,11 +16,10 @@ class DpdOrders extends Order
 {
     public function buildModelCriteria()
     {
-        $modules = ['DpdPickup', 'DpdClassic', 'Predict'];
         $filter = [];
 
-        foreach ($modules as $moduleCode) {
-            if ($module = ModuleQuery::create()->filterByCode($moduleCode)->filterByActivate(1)->findOne()) {
+        foreach (AuthorizedModuleEnum::cases() as $case) {
+            if ($module = ModuleQuery::create()->filterByCode($case->value)->filterByActivate(1)->findOne()) {
                 $filter[] = $module->getId();
             }
         }

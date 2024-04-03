@@ -3,6 +3,7 @@
 namespace DpdLabel\EventListeners;
 
 
+use DpdLabel\enum\AuthorizedModuleEnum;
 use DpdLabel\Service\LabelService;
 use Picking\Event\GenerateLabelEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -34,7 +35,7 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
     public function generateLabel(GenerateLabelEvent $event)
     {
         $deliveryModuleCode = $event->getOrder()->getModuleRelatedByDeliveryModuleId()->getCode();
-        if ($deliveryModuleCode === "DpdPickup") {
+        if ($deliveryModuleCode === AuthorizedModuleEnum::DpdPickup->value) {
             $data = [];
             $orderId = $event->getOrder()->getId();
             $data['order_id'] = $orderId;
