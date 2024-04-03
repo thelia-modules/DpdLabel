@@ -3,6 +3,7 @@
 namespace DpdLabel\Hook;
 
 
+use DpdLabel\enum\AuthorizedModuleEnum;
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
 use Thelia\Model\OrderQuery;
@@ -28,7 +29,16 @@ class BackHook extends BaseHook
     {
         $moduleCode = OrderQuery::create()->findOneById($event->getArgument("order_id"))->getModuleRelatedByDeliveryModuleId()->getCode();
 
-        if (in_array($moduleCode, ["DpdPickup", "DpdClassic", "Predict"])) {
+        $found = false;
+
+        foreach (AuthorizedModuleEnum::cases() as $obj) {
+            if ($obj->value === $moduleCode) {
+                $found = true;
+                break;
+            }
+        }
+
+        if ($found) {
             $event->add($this->render('hook/dpdlabel-order-edit-label.html'));
         }
     }

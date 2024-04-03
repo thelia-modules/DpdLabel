@@ -3,10 +3,14 @@
 namespace DpdLabel\Service;
 
 use DpdLabel\DpdLabel;
+use DpdLabel\enum\AuthorizedModuleEnum;
 use DpdLabel\Form\ApiConfigurationForm;
 use DpdLabel\Model\DpdlabelLabels;
 use DpdPickup\Model\OrderAddressIcirelaisQuery;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Thelia\Core\Event\Order\OrderEvent;
+use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Translation\Translator;
 use Thelia\Model\ConfigQuery;
@@ -15,6 +19,7 @@ use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order;
 use Thelia\Model\OrderAddressQuery;
 use Thelia\Model\OrderQuery;
+use Thelia\Model\OrderStatusQuery;
 use Thelia\Tools\URL;
 
 class LabelService
@@ -74,17 +79,24 @@ class LabelService
 
     /**
      * @param Order $order
-     * @param $labelName
+     * @param mixed $labelName
      * @param $weight
-     * @param int $retour
+     * @param null $retour
+     * @param null $forceTypeLabel
+     * @param null $newStatus
      * @return DpdlabelLabels|string
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
+     * @throws \SoapFault
      */
-    public function createLabel(Order $order, $labelName, $weight, $retour = null)
+    public function createLabel(Order $order, mixed $labelName, $weight, $retour = null, $forceTypeLabel = null, $newStatus = null)
     {
-        $data = $this->writeData($order, $weight, $retour);
+
+        $data = $this->writeData($order, $weight, $retour, $forceTypeLabel);
 
         $DpdWSD = DpdLabel::DPD_WSDL;
+
+        /** Check if status needs to be changed after processing */
+        $newStatus = OrderStatusQuery::create()->findOneByCode($newStatus);
 
         if (1 === (int)DpdLabel::getConfigValue(DpdLabel::API_IS_TEST)) {
             $DpdWSD = DpdLabel::DPD_WSDL_TEST;
@@ -112,10 +124,23 @@ class LabelService
             $labels = $response->CreateShipmentWithLabelsBcResult->labels->Label;
         }
 
-        if (false === @file_put_contents($labelName, $labels->label)) {
+        // if no labelName we don't create the file
+        if (null !== $labelName && false === @file_put_contents($labelName, $labels->label)) {
             return Translator::getInstance()->trans("The label data cannot be saved in file %file", ['%file' => $labelName], DpdLabel::DOMAIN_NAME);
         }
 
+        /* Change the order status if it was requested by the user */
+        if ($newStatus) {
+            $newStatusId = $newStatus->getId();
+
+            if ($order->getOrderStatus()->getId() !== $newStatusId) {
+                $order->setOrderStatus($newStatus);
+                $this->dispatcher->dispatch(
+                    (new OrderEvent($order))->setStatus($newStatusId),
+                    TheliaEvents::ORDER_UPDATE_STATUS
+                );
+            }
+        }
 
         $label = new DpdlabelLabels();
         $label
@@ -136,9 +161,8 @@ class LabelService
      * @return mixed
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    protected function writeData(Order $order, $weight, $retour = null)
+    protected function writeData(Order $order, $weight, $retour = null, $forceTypeLabel = null)
     {
-
         $data = DpdLabel::getApiConfig();
 
         $shopCountry = CountryQuery::create()->filterById(ConfigQuery::create()->filterByName("store_country")->findOne()->getValue())->findOne();
@@ -163,7 +187,7 @@ class LabelService
         ];
 
         $services = [];
-        if (ModuleQuery::create()->filterById($order->getDeliveryModuleId())->findOne()->getCode() === "DpdPickup"){
+        if (ModuleQuery::create()->filterById($order->getDeliveryModuleId())->findOne()->getCode() === AuthorizedModuleEnum::DpdPickup->value){
             $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->filterById($deliveryAddress->getId())->findOne();
             $services = [
                 "contact" => [
@@ -202,7 +226,7 @@ class LabelService
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
             "labelType" => [
-                "type" => ApiConfigurationForm::LABEL_TYPE_CHOICES[(int) $data['label_type']]
+                "type" => $forceTypeLabel || ApiConfigurationForm::LABEL_TYPE_CHOICES[(int) $data['label_type']]
             ]
         ];
 
