@@ -39,6 +39,8 @@ class LabelService
     {
         $orderId = $data['order_id'];
         $weight = $data['weight'];
+        $forceTypeLabel = $data['force_type_label'] ?? null;
+        $newStatus = $data['new_status'] ?? null;
 
         if (!$orderId) {
             return new JsonResponse([
@@ -54,9 +56,16 @@ class LabelService
 
         $order = OrderQuery::create()->filterById($orderId)->findOne();
         $labelName = DpdLabel::DPD_LABEL_DIR . DS . $order->getRef();
-        $labelName = $this->setLabelNameExtension($labelName);
+        $labelName = $this->setLabelNameExtension($labelName, $forceTypeLabel);
 
-        $label = $this->createLabel($order, $labelName, $weight);
+        $label = $this->createLabel(
+            $order,
+            $labelName,
+            $weight,
+            null,
+            $forceTypeLabel,
+            $newStatus
+        );
 
         if (is_string($label)) {
             return new JsonResponse([
@@ -79,7 +88,7 @@ class LabelService
 
     /**
      * @param Order $order
-     * @param mixed $labelName
+     * @param $labelName
      * @param $weight
      * @param null $retour
      * @param null $forceTypeLabel
@@ -88,7 +97,7 @@ class LabelService
      * @throws PropelException
      * @throws \SoapFault
      */
-    public function createLabel(Order $order, mixed $labelName, $weight, $retour = null, $forceTypeLabel = null, $newStatus = null)
+    public function createLabel(Order $order, $labelName, $weight, $retour = null, $forceTypeLabel = null, $newStatus = null)
     {
 
         $data = $this->writeData($order, $weight, $retour, $forceTypeLabel);
@@ -125,7 +134,7 @@ class LabelService
         }
 
         // if no labelName we don't create the file
-        if (null !== $labelName && false === @file_put_contents($labelName, $labels->label)) {
+        if (false === @file_put_contents($labelName, $labels->label)) {
             return Translator::getInstance()->trans("The label data cannot be saved in file %file", ['%file' => $labelName], DpdLabel::DOMAIN_NAME);
         }
 
@@ -238,9 +247,11 @@ class LabelService
         return $ApiData;
     }
 
-    public function setLabelNameExtension($labelName)
+    public function setLabelNameExtension($labelName, $forceTypeLabel = null)
     {
-        switch (ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)]) {
+        $label = strtoupper($forceTypeLabel) || ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)];
+
+        switch ($label) {
             case 'PDF':
             case 'PDF_A6':
                 $labelName .= '.pdf';
@@ -259,6 +270,7 @@ class LabelService
             default:
                 break;
         }
+
         return $labelName;
     }
 }
