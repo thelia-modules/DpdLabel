@@ -235,7 +235,7 @@ class LabelService
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
             "labelType" => [
-                "type" => $forceTypeLabel || ApiConfigurationForm::LABEL_TYPE_CHOICES[(int) $data['label_type']]
+                "type" => $forceTypeLabel ?: ApiConfigurationForm::LABEL_TYPE_CHOICES[(int) $data['label_type']]
             ]
         ];
 
@@ -249,7 +249,7 @@ class LabelService
 
     public function setLabelNameExtension($labelName, $forceTypeLabel = null)
     {
-        $label = strtoupper($forceTypeLabel) || ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)];
+        $label = strtoupper($forceTypeLabel) ?: ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)];
 
         switch ($label) {
             case 'PDF':
