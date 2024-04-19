@@ -182,6 +182,7 @@ class LabelService
         ];
 
         $deliveryAddress = OrderAddressQuery::create()->filterById($order->getDeliveryOrderAddressId())->findOne();
+        $phone = $deliveryAddress->getCellphone() ?: $deliveryAddress->getPhone() ?: "x";
 
         $receiveraddress = [
             'name' => $deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname(),
@@ -189,7 +190,7 @@ class LabelService
             'city' => $deliveryAddress->getCity(),
             'zipCode' => $deliveryAddress->getZipcode(),
             'street' => $deliveryAddress->getAddress1(),
-            'phoneNumber' => $deliveryAddress->getPhone() ?: "x",
+            'phoneNumber' => $phone,
             'faxNumber' => '',
             'geoX' => '',
             'geoY' => ''
