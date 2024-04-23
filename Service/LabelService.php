@@ -173,12 +173,13 @@ class LabelService
     protected function writeData(Order $order, $weight, $retour = null, $forceTypeLabel = null)
     {
         $data = DpdLabel::getApiConfig();
+        $deliveryModuleCode = $order->getDeliveryModuleInstance()->getCode();
 
         $shopCountry = CountryQuery::create()->filterById(ConfigQuery::create()->filterByName("store_country")->findOne()->getValue())->findOne();
 
         $ApiData["Header"] = [
-            "userid" => $data['userId'],
-            "password" => $data['password']
+            "userid" => $data['user_id_' . $deliveryModuleCode],
+            "password" => $data['password_' . $deliveryModuleCode]
         ];
 
         $deliveryAddress = OrderAddressQuery::create()->filterById($order->getDeliveryOrderAddressId())->findOne();
@@ -201,7 +202,7 @@ class LabelService
             $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->filterById($deliveryAddress->getId())->findOne();
             $services = [
                 "contact" => [
-                    "sms" => $deliveryAddress->getPhone() ?: "x",
+                    "sms" => $phone,
                     "email" => $order->getCustomer()->getEmail(),
                     "autotext" => "",
                     "type" => "No"
@@ -228,8 +229,8 @@ class LabelService
 
         $ApiData["Body"] = [
             "customer_countrycode" => (int)$shopCountry->getIsocode(),
-            "customer_centernumber" => (int)$data['center_number'],
-            "customer_number" => (int)$data['customer_number'],
+            "customer_centernumber" => (int)$data['center_number_' . $deliveryModuleCode],
+            "customer_number" => (int)$data['customer_number_' . $deliveryModuleCode],
             "receiveraddress" => $receiveraddress,
             "services" => $services,
             "shipperaddress" => $shipperaddress,

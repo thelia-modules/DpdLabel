@@ -2,13 +2,14 @@
 
 namespace DpdLabel\Form;
 
-
 use DpdLabel\DpdLabel;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
+use Thelia\Model\Module;
+use Thelia\Model\ModuleQuery;
 
 class ApiConfigurationForm extends BaseForm
 {
@@ -25,51 +26,60 @@ class ApiConfigurationForm extends BaseForm
     {
         $data = DpdLabel::getApiConfig();
 
-        $this->formBuilder
-            ->add("user_id",
-                TextType::class,
-                [
-                    "required" => true,
-                    "data" => $data['userId'],
-                    "label" => Translator::getInstance()->trans("User id", [], DpdLabel::DOMAIN_NAME),
-                    "label_attr" => [
-                        "for" => "user_id",
-                    ],
-                ]
-            )
-            ->add("password",
-                TextType::class,
-                [
-                    "required" => true,
-                    "data" => $data['password'],
-                    "label" => Translator::getInstance()->trans("Password", [], DpdLabel::DOMAIN_NAME),
-                    "label_attr" => [
-                        "for" => "user_id",
-                    ],
-                ]
-            )
-            ->add("center_number",
-                TextType::class,
-                [
-                    "required" => true,
-                    "data" => $data['center_number'],
-                    "label" => Translator::getInstance()->trans("Center number", [], DpdLabel::DOMAIN_NAME),
-                    "label_attr" => [
-                        "for" => "center_number",
-                    ],
-                ]
-            )
-            ->add("customer_number",
-                TextType::class,
-                [
-                    "required" => true,
-                    "data" => $data['customer_number'],
-                    "label" => Translator::getInstance()->trans("Customer number", [], DpdLabel::DOMAIN_NAME),
-                    "label_attr" => [
-                        "for" => "customer_number",
+        foreach (DpdLabel::DPD_MODULES as $code) {
+            $deliveryModule = ModuleQuery::create()->findOneByCode($code);
+            if (!$deliveryModule instanceof Module) {
+                continue;
+            }
+
+            $this->formBuilder
+                ->add("user_id_$code",
+                    TextType::class,
+                    [
+                        "required" => true,
+                        "data" => $data['user_id_' . $code],
+                        "label" => Translator::getInstance()->trans("$code User id", [], DpdLabel::DOMAIN_NAME),
+                        "label_attr" => [
+                            "for" => "user_id_$code",
+                        ],
                     ]
-                ]
-            )
+                )
+                ->add("password_$code",
+                    TextType::class,
+                    [
+                        "required" => true,
+                        "data" => $data['password_' . $code],
+                        "label" => Translator::getInstance()->trans("$code Password", [], DpdLabel::DOMAIN_NAME),
+                        "label_attr" => [
+                            "for" => "password_$code",
+                        ],
+                    ]
+                )
+                ->add("center_number_$code",
+                    TextType::class,
+                    [
+                        "required" => true,
+                        "data" => $data['center_number_' . $code],
+                        "label" => Translator::getInstance()->trans("$code Center number", [], DpdLabel::DOMAIN_NAME),
+                        "label_attr" => [
+                            "for" => "center_number_$code",
+                        ],
+                    ]
+                )
+                ->add("customer_number_$code",
+                    TextType::class,
+                    [
+                        "required" => true,
+                        "data" => $data['customer_number_' . $code],
+                        "label" => Translator::getInstance()->trans("$code Customer number", [], DpdLabel::DOMAIN_NAME),
+                        "label_attr" => [
+                            "for" => "customer_number_$code",
+                        ]
+                    ]
+                );
+        }
+
+        $this->formBuilder
             ->add("label_type",
                 ChoiceType::class,
                 [
