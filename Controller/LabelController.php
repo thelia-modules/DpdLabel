@@ -86,6 +86,7 @@ class LabelController extends BaseAdminController
     /**
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Propel\Runtime\Exception\PropelException
+     * @throws \SoapFault
      * @Route("/generateLabel", name="_generate_label", methods="POST")
      */
     public function generateLabelAction(RequestStack $requestStack, LabelService $labelService)
@@ -110,6 +111,7 @@ class LabelController extends BaseAdminController
         try {
             $form = $this->validateForm($baseForm);
             $data = $form->getData();
+            DpdLabel::setConfigValue('new_status', $data['new_status']);
         } catch (\Exception $e) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [
                 "err" => $e->getMessage(),
