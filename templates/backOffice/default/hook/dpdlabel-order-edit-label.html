@@ -53,6 +53,31 @@
 
 {capture "dpdlabel_label_creation"}
     {form_hidden_fields}
+    <div class="input-group">
+        {form_field field="new_status"}
+            <label>
+                {intl d='dpdlabel.bo.default' l="Order status change after processing"}
+            </label>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="{$name}" value="nochange" {if $data == "nochange"}checked{/if}>
+                    {intl l="Do not change" d='dpdlabel.bo.default'}
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="{$name}" value="processing" {if $data == "processing"}checked{/if}>
+                    {intl l="Change to \"Processing\"" d='dpdlabel.bo.default'}
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="{$name}" value="sent" {if $data == "sent"}checked{/if}>
+                    {intl l="Change to \"Sent\". If you choose this option, the delivery notification email is sent to the customer." d='dpdlabel.bo.default'}
+                </label>
+            </div>
+        {/form_field}
+    </div>
     {custom_render_form_field field='weight' value=$weight}
         <div class="input-group">
             <input type="text" {form_field_attributes field="weight" value=$weight}>
@@ -66,7 +91,7 @@
     file = "includes/generic-create-dialog.html"
 
     dialog_id    = "dpdlabel-label-dialog"
-    dialog_title = {intl l="Enter parcel weight" d='dpdlabel.bo.default'}
+    dialog_title = {intl l="Dpd Labels" d='dpdlabel.bo.default'}
     dialog_body  = {$smarty.capture.dpdlabel_label_creation nofilter}
 
     dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}

@@ -117,7 +117,7 @@ class LabelController extends BaseAdminController
             ]));
         }
 
-        $err = $labelService->createLabel($order, $labelName, $data['weight'], $retour);
+        $err = $labelService->createLabel($order, $labelName, $data['weight'], $retour, null, $data['new_status']);
 
         if (is_string($err)) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [

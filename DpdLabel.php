@@ -22,10 +22,38 @@ class DpdLabel extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'dpdlabel';
 
-    const API_USER_ID = "dpdlabel_userid";
-    const API_PASSWORD = "dpdlabel_password";
-    const API_CENTER_NUMBER = "dpdlabel_center_number";
-    const API_CUSTOMER_NUMBER = "dpdlabel_customer_number";
+    const API_USER_ID_DPD_PICKUP = "dpdlabel_userid_dpd_pickup";
+    const API_PASSWORD_DPD_PICKUP = "dpdlabel_password_dpd_pickup";
+    const API_CENTER_NUMBER_DPD_PICKUP = "dpdlabel_center_number_dpd_pickup";
+    const API_CUSTOMER_NUMBER_DPD_PICKUP = "dpdlabel_customer_number_dpd_pickup";
+    const API_USER_ID_DPD_CLASSIC = "dpdlabel_userid_dpd_classic";
+    const API_PASSWORD_DPD_CLASSIC = "dpdlabel_password_dpd_classic";
+    const API_CENTER_NUMBER_DPD_CLASSIC = "dpdlabel_center_number_dpd_classic";
+    const API_CUSTOMER_NUMBER_DPD_CLASSIC = "dpdlabel_customer_number_dpd_classic";
+    const API_USER_ID_DPD_PREDICT = "dpdlabel_userid_dpd_predict";
+    const API_PASSWORD_DPD_PREDICT = "dpdlabel_password_dpd_predict";
+    const API_CENTER_NUMBER_DPD_PREDICT = "dpdlabel_center_number_dpd_predict";
+    const API_CUSTOMER_NUMBER_DPD_PREDICT = "dpdlabel_customer_number_dpd_predict";
+    const API_DPD_ACCOUNT_CONFIGS = [
+        'DpdPickup' => [
+            'user_id' => self::API_USER_ID_DPD_PICKUP,
+            'password' => self::API_PASSWORD_DPD_PICKUP,
+            'center_number' => self::API_CENTER_NUMBER_DPD_PICKUP,
+            'customer_number' => self::API_CUSTOMER_NUMBER_DPD_PICKUP
+        ],
+        'DpdClassic' => [
+            'user_id' => self::API_USER_ID_DPD_CLASSIC,
+            'password' => self::API_PASSWORD_DPD_CLASSIC,
+            'center_number' => self::API_CENTER_NUMBER_DPD_CLASSIC,
+            'customer_number' => self::API_CUSTOMER_NUMBER_DPD_CLASSIC
+        ],
+        'Predict' => [
+            'user_id' => self::API_USER_ID_DPD_PREDICT,
+            'password' => self::API_PASSWORD_DPD_PREDICT,
+            'center_number' => self::API_CENTER_NUMBER_DPD_PREDICT,
+            'customer_number' => self::API_CUSTOMER_NUMBER_DPD_PREDICT
+        ]
+    ];
     const API_LABEL_TYPE = "dpdlabel_label_type";
     const API_IS_TEST = "dpdlabel_is_test";
 
@@ -48,6 +76,8 @@ class DpdLabel extends BaseModule
 
     const DPD_LABEL_DIR = THELIA_LOCAL_DIR . "DpdLabel";
 
+    const DPD_MODULES = ['DpdPickup', 'DpdClassic', 'Predict'];
+
     public function postActivation(ConnectionInterface $con = null): void
     {
         $database = new Database($con->getWrappedConnection());
@@ -58,10 +88,12 @@ class DpdLabel extends BaseModule
             self::setConfigValue("is_initialized", 1);
 
             // Official DPD data test parameters
-            self::setConfigValue(self::API_USER_ID, 'GeoLabelTestEnv');
-            self::setConfigValue(self::API_PASSWORD, 'Geo-67!L@belT%est');
-            self::setConfigValue(self::API_CENTER_NUMBER, '77');
-            self::setConfigValue(self::API_CUSTOMER_NUMBER, '18028');
+            foreach (self::API_DPD_ACCOUNT_CONFIGS as $code => $configs) {
+                self::setConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['userId'], 'GeoLabelTestEnv');
+                self::setConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['password'], 'Geo-67!L@belT%est');
+                self::setConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['center_number'], '77');
+                self::setConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['customer_number'], '18028');
+            }
             self::setConfigValue(self::API_LABEL_TYPE, 0);
             self::setConfigValue(self::API_IS_TEST, true);
         }
@@ -70,10 +102,12 @@ class DpdLabel extends BaseModule
     public static function getApiConfig()
     {
         $data = [];
-        $data['userId'] = self::getConfigValue(self::API_USER_ID);
-        $data['password'] = self::getConfigValue(self::API_PASSWORD);
-        $data['center_number'] = self::getConfigValue(self::API_CENTER_NUMBER);
-        $data['customer_number'] = self::getConfigValue(self::API_CUSTOMER_NUMBER);
+        foreach (self::API_DPD_ACCOUNT_CONFIGS as $code => $configs) {
+            $data['user_id_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['user_id']);
+            $data['password_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['password']);
+            $data['center_number_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['center_number']);
+            $data['customer_number_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['customer_number']);
+        }
         $data['label_type'] = self::getConfigValue(self::API_LABEL_TYPE);
         $data['isTest'] = (int)self::getConfigValue(self::API_IS_TEST);
         $data['shipperName'] = self::getConfigValue(self::API_SHIPPER_NAME);
@@ -89,7 +123,7 @@ class DpdLabel extends BaseModule
 
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
-        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+        $servicesConfigurator->load(self::getModuleCode().'\\', THELIA_MODULE_DIR . ucfirst(self::getModuleCode()))
             ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
             ->autowire(true)
             ->autoconfigure(true);
