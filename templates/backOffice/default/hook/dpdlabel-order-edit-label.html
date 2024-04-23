@@ -18,7 +18,13 @@
             {$weight = $WEIGHT}
             {DpdLabelNumber order_id=$ID}
             <td>{$labelNbr|default:'-'}</td>
-            <td>{format_date date=$CREATE_DATE}</td>
+            <td>
+                {if $label_created_at}
+                    {format_date date=$label_created_at}
+                {else}
+                    -
+                {/if}
+            </td>
             {loop type="order_address" name="destination_loop" id=$DELIVERY_ADDRESS}
                 <td>{$ADDRESS1} {$CITY} {$ZIPCODE}</td>
             {/loop}
