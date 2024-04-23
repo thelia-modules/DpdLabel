@@ -4,6 +4,7 @@ namespace DpdLabel\Hook;
 
 
 use DpdLabel\enum\AuthorizedModuleEnum;
+use DpdLabel\Model\DpdlabelLabelsQuery;
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
 use Thelia\Model\OrderQuery;
@@ -39,7 +40,13 @@ class BackHook extends BaseHook
         }
 
         if ($found) {
-            $event->add($this->render('hook/dpdlabel-order-edit-label.html'));
+            $labelCreatedAt = DpdlabelLabelsQuery::create()
+                ->filterByOrderId($event->getArgument('order_id'))
+                ->findOne()
+                ?->getCreatedAt();
+            $event->add($this->render('hook/dpdlabel-order-edit-label.html', [
+                'label_created_at' => $labelCreatedAt
+            ]));
         }
     }
 }
