@@ -76,6 +76,7 @@ class LabelService
         return new JsonResponse([
             'id' => $label->getId(),
             'url' => URL::getInstance()->absoluteUrl('/admin/module/DpdLabel/getLabel/' . $order->getRef()),
+            'path' => $labelName,
             'number' => $order->getRef(),
             'order' => [
                 'id' => $order->getId(),
