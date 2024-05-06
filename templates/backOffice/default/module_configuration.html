@@ -1,34 +1,39 @@
-<div class="general-block-decorator">
-    <div class="title title-without-tabs">
-        {intl l="Configure DpdLabel" d="dpdlabel.bo.default"}
+<div class="row">
+    <div class="col-md-12 general-block-decorator">
+        <div class="title title-without-tabs">
+            {intl l="Configure DpdLabel" d="dpdlabel.bo.default"}
+        </div>
+        {form name="dpdlabel_api_config_form"}
+            <form action="{url path="/admin/module/DpdLabel/api-config"}" method="post">
+                {form_hidden_fields}
+
+                {if $form_error}
+                    <div class="alert alert-danger">{$form_error_message}</div>
+                {/if}
+
+                <div class="col-md-6">
+                    {foreach from=$codes item=code}
+                        {render_form_field field="user_id_{$code}"}
+                        {render_form_field field="password_{$code}"}
+                        {render_form_field field="center_number_{$code}"}
+                        {render_form_field field="customer_number_{$code}"}
+                    {/foreach}
+
+                    {render_form_field field="label_type"}
+                    {render_form_field field="isTest"}
+                </div>
+
+                <div class="col-md-6">
+                    {render_form_field field="shipper_name"}
+                    {render_form_field field="shipper_address1"}
+                    {render_form_field field="shipper_country"}
+                    {render_form_field field="shipper_city"}
+                    {render_form_field field="shipper_zip_code"}
+                    {render_form_field field="shipper_phone"}
+                    {render_form_field field="shipper_fax"}
+                </div>
+                <button type="submit" name="save_mode" value="stay" class="form-submit-button btn btn-sm btn-default btn-success">{intl d='dpdlabel.bo.default' l='Save changes'} <span class="glyphicon glyphicon-ok"></span></button>
+            </form>
+        {/form}
     </div>
-    {form name="dpdlabel_api_config_form"}
-        <form action="{url path="/admin/module/DpdLabel/api-config"}" method="post">
-            {form_hidden_fields}
-
-            {if $form_error}
-                <div class="alert alert-danger">{$form_error_message}</div>
-            {/if}
-
-            <div class="col-md-6">
-                {render_form_field field="user_id"}
-                {render_form_field field="password"}
-                {render_form_field field="center_number"}
-                {render_form_field field="customer_number"}
-                {render_form_field field="label_type"}
-                {render_form_field field="isTest"}
-            </div>
-
-            <div class="col-md-6">
-                {render_form_field field="shipper_name"}
-                {render_form_field field="shipper_address1"}
-                {render_form_field field="shipper_country"}
-                {render_form_field field="shipper_city"}
-                {render_form_field field="shipper_zip_code"}
-                {render_form_field field="shipper_phone"}
-                {render_form_field field="shipper_fax"}
-            </div>
-            <button type="submit" name="save_mode" value="stay" class="form-submit-button btn btn-sm btn-default btn-success">{intl d='dpdlabel.bo.default' l='Save changes'} <span class="glyphicon glyphicon-ok"></span></button>
-        </form>
-    {/form}
 </div>

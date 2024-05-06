@@ -3,17 +3,25 @@
 namespace DpdLabel\Hook;
 
 
+use DpdLabel\DpdLabel;
 use DpdLabel\enum\AuthorizedModuleEnum;
 use DpdLabel\Model\DpdlabelLabelsQuery;
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
+use Thelia\Model\Map\ModuleTableMap;
+use Thelia\Model\ModuleQuery;
 use Thelia\Model\OrderQuery;
 
 class BackHook extends BaseHook
 {
     public function onModuleConfig(HookRenderEvent $event)
     {
-        $event->add($this->render('module_configuration.html'));
+        $codes = ModuleQuery::create()
+            ->select(ModuleTableMap::COL_CODE)
+            ->filterByCode(DpdLabel::DPD_MODULES)
+            ->find()
+            ->toArray();
+        $event->add($this->render('module_configuration.html', ['codes' => $codes]));
     }
 
 
