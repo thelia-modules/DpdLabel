@@ -13,6 +13,7 @@
 
                 <div class="col-md-6">
                     {foreach from=$codes item=code}
+                        <div class="title">{$code}</div>
                         {render_form_field field="user_id_{$code}"}
                         {render_form_field field="password_{$code}"}
                         {render_form_field field="center_number_{$code}"}

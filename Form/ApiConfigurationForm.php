@@ -36,7 +36,7 @@ class ApiConfigurationForm extends BaseForm
                 ->add("user_id_$code",
                     TextType::class,
                     [
-                        "required" => true,
+                        "required" => false,
                         "data" => $data['user_id_' . $code],
                         "label" => Translator::getInstance()->trans("$code User id", [], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
@@ -47,7 +47,7 @@ class ApiConfigurationForm extends BaseForm
                 ->add("password_$code",
                     TextType::class,
                     [
-                        "required" => true,
+                        "required" => false,
                         "data" => $data['password_' . $code],
                         "label" => Translator::getInstance()->trans("$code Password", [], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
@@ -58,7 +58,7 @@ class ApiConfigurationForm extends BaseForm
                 ->add("center_number_$code",
                     TextType::class,
                     [
-                        "required" => true,
+                        "required" => false,
                         "data" => $data['center_number_' . $code],
                         "label" => Translator::getInstance()->trans("$code Center number", [], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
@@ -69,7 +69,7 @@ class ApiConfigurationForm extends BaseForm
                 ->add("customer_number_$code",
                     TextType::class,
                     [
-                        "required" => true,
+                        "required" => false,
                         "data" => $data['customer_number_' . $code],
                         "label" => Translator::getInstance()->trans("$code Customer number", [], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
