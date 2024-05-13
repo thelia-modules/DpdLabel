@@ -169,7 +169,7 @@ class LabelService
             'city' => utf8_decode($deliveryAddress->getCity()),
             'zipCode' => $deliveryAddress->getZipcode(),
             'street' => utf8_decode($deliveryAddress->getAddress1()),
-            'phoneNumber' => $deliveryAddress->getPhone() ?: "x",
+            'phoneNumber' => $deliveryAddress->getCellphone() ?: "x",
             'faxNumber' => '',
             'geoX' => '',
             'geoY' => ''
@@ -180,7 +180,7 @@ class LabelService
             $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->filterById($deliveryAddress->getId())->findOne();
             $services = [
                 "contact" => [
-                    "sms" => $deliveryAddress->getPhone() ?: "x",
+                    "sms" => $deliveryAddress->getCellphone() ?: "x",
                     "email" => $order->getCustomer()->getEmail(),
                     "autotext" => "",
                     "type" => "No"
