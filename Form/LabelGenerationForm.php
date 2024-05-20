@@ -10,6 +10,7 @@ namespace DpdLabel\Form;
 
 
 use DpdLabel\DpdLabel;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
@@ -28,6 +29,21 @@ class LabelGenerationForm extends BaseForm
                     "label_attr" => [
                         "for" => "weight",
                     ],
+                ]
+            )
+            ->add(
+                'new_status',
+                ChoiceType::class, [
+                    'label' => Translator::getInstance()->trans('Order status after export'),
+                    'choices' => [
+                        Translator::getInstance()->trans('Do not change', [], DpdLabel::DOMAIN_NAME) => 'nochange',
+                        Translator::getInstance()->trans('Set orders status as processing', [], DpdLabel::DOMAIN_NAME) => 'processing',
+                        Translator::getInstance()->trans('Set orders status as sent', [], DpdLabel::DOMAIN_NAME) => 'sent',
+                    ],
+                    'required' => false,
+                    'expanded' => true,
+                    'multiple' => false,
+                    'data' => DpdLabel::getConfigValue('new_status', 'nochange'),
                 ]
             );
     }

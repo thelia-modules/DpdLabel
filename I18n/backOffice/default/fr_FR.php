@@ -26,4 +26,9 @@ return array(
     'Total Amount' => 'Montant total',
     'View' => 'Voir',
     'kg' => 'kg',
+    'Dpd Labels' => 'Etiquettes Dpd',
+    'Order status change after processing' => 'Status de commande après l\'export',
+    'Do not change' => 'Ne pas modifier',
+    'Change to "Processing"' => 'Changer en "Traitement"',
+    'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer.' => 'Changer en "Envoyé". Choisir cette option enverra un mail de notification au client.',
 );

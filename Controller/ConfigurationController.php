@@ -36,10 +36,12 @@ class ConfigurationController extends BaseAdminController
             $form = $this->validateForm($baseForm);
             $data = $form->getData();
 
-            DpdLabel::setConfigValue(DpdLabel::API_USER_ID, $data["user_id"]);
-            DpdLabel::setConfigValue(DpdLabel::API_PASSWORD, $data["password"]);
-            DpdLabel::setConfigValue(DpdLabel::API_CENTER_NUMBER, $data["center_number"]);
-            DpdLabel::setConfigValue(DpdLabel::API_CUSTOMER_NUMBER, $data["customer_number"]);
+            foreach (DpdLabel::API_DPD_ACCOUNT_CONFIGS as $code => $configs) {
+                DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['user_id'], $data["user_id_$code"]);
+                DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['password'], $data["password_$code"]);
+                DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['center_number'], $data["center_number_$code"]);
+                DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['customer_number'], $data["customer_number_$code"]);
+            }
             DpdLabel::setConfigValue(DpdLabel::API_LABEL_TYPE, $data["label_type"]);
             DpdLabel::setConfigValue(DpdLabel::API_IS_TEST, $data["isTest"]);
             DpdLabel::setConfigValue(DpdLabel::API_SHIPPER_NAME, $data["shipper_name"]);

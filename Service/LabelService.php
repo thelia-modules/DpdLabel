@@ -173,15 +173,17 @@ class LabelService
     protected function writeData(Order $order, $weight, $retour = null, $forceTypeLabel = null)
     {
         $data = DpdLabel::getApiConfig();
+        $deliveryModuleCode = $order->getDeliveryModuleInstance()->getCode();
 
         $shopCountry = CountryQuery::create()->filterById(ConfigQuery::create()->filterByName("store_country")->findOne()->getValue())->findOne();
 
         $ApiData["Header"] = [
-            "userid" => $data['userId'],
-            "password" => $data['password']
+            "userid" => $data['user_id_' . $deliveryModuleCode],
+            "password" => $data['password_' . $deliveryModuleCode]
         ];
 
         $deliveryAddress = OrderAddressQuery::create()->filterById($order->getDeliveryOrderAddressId())->findOne();
+        $phone = $deliveryAddress->getCellphone() ?: $deliveryAddress->getPhone() ?: "x";
 
         $receiveraddress = [
             'name' => $deliveryAddress->getFirstname() . ' ' . $deliveryAddress->getLastname(),
@@ -189,7 +191,7 @@ class LabelService
             'city' => $deliveryAddress->getCity(),
             'zipCode' => $deliveryAddress->getZipcode(),
             'street' => $deliveryAddress->getAddress1(),
-            'phoneNumber' => $deliveryAddress->getPhone() ?: "x",
+            'phoneNumber' => $phone,
             'faxNumber' => '',
             'geoX' => '',
             'geoY' => ''
@@ -200,7 +202,7 @@ class LabelService
             $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->filterById($deliveryAddress->getId())->findOne();
             $services = [
                 "contact" => [
-                    "sms" => $deliveryAddress->getPhone() ?: "x",
+                    "sms" => $phone,
                     "email" => $order->getCustomer()->getEmail(),
                     "autotext" => "",
                     "type" => "No"
@@ -227,15 +229,15 @@ class LabelService
 
         $ApiData["Body"] = [
             "customer_countrycode" => (int)$shopCountry->getIsocode(),
-            "customer_centernumber" => (int)$data['center_number'],
-            "customer_number" => (int)$data['customer_number'],
+            "customer_centernumber" => (int)$data['center_number_' . $deliveryModuleCode],
+            "customer_number" => (int)$data['customer_number_' . $deliveryModuleCode],
             "receiveraddress" => $receiveraddress,
             "services" => $services,
             "shipperaddress" => $shipperaddress,
             "weight" => $weight,
             "referencenumber" => $order->getRef(),
             "labelType" => [
-                "type" => $forceTypeLabel ? $forceTypeLabel : ApiConfigurationForm::LABEL_TYPE_CHOICES[(int) $data['label_type']]
+                "type" => $forceTypeLabel ?: ApiConfigurationForm::LABEL_TYPE_CHOICES[(int) $data['label_type']]
             ]
         ];
 
@@ -249,7 +251,7 @@ class LabelService
 
     public function setLabelNameExtension($labelName, $forceTypeLabel = null)
     {
-        $label = strtoupper($forceTypeLabel) ?? ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)];
+        $label = strtoupper($forceTypeLabel) ?: ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)];
 
         switch ($label) {
             case 'PDF':

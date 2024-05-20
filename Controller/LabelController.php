@@ -11,7 +11,9 @@ use DpdLabel\Service\LabelService;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Thelia\Controller\Admin\BaseAdminController;
+use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Model\OrderQuery;
@@ -117,7 +119,7 @@ class LabelController extends BaseAdminController
             ]));
         }
 
-        $err = $labelService->createLabel($order, $labelName, $data['weight'], $retour);
+        $err = $labelService->createLabel($order, $labelName, $data['weight'], $retour, null, $data['new_status']);
 
         if (is_string($err)) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/' . $orderId, [
@@ -159,19 +161,25 @@ class LabelController extends BaseAdminController
     /**
      * @Route("/getLabel/{orderRef}", name="_get_label", methods="GET")
      */
-    public function getLabelAction($orderRef)
+    public function getLabelAction($orderRef, Request $request)
     {
-        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
-            return $response;
-        }
-
         $labelDir = DpdLabel::DPD_LABEL_DIR;
-
         $file = $labelDir . DS . $orderRef;
+        $download = $request->get('download');
+
         $files = glob($file.'.*');
 
         if (!empty($files) && file_exists($files[0])) {
-            return new BinaryFileResponse($files[0]);
+            $response = new BinaryFileResponse($files[0]);
+
+            if ($download) {
+                $response->setContentDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    $orderRef . '.pdf'
+                );
+            }
+
+            return $response;
         }
 
         return '';
