@@ -161,19 +161,25 @@ class LabelController extends BaseAdminController
     /**
      * @Route("/getLabel/{orderRef}", name="_get_label", methods="GET")
      */
-    public function getLabelAction($orderRef)
+    public function getLabelAction($orderRef, Request $request)
     {
-        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
-            return $response;
-        }
-
         $labelDir = DpdLabel::DPD_LABEL_DIR;
-
         $file = $labelDir . DS . $orderRef;
+        $download = $request->get('download');
+
         $files = glob($file.'.*');
 
         if (!empty($files) && file_exists($files[0])) {
-            return new BinaryFileResponse($files[0]);
+            $response = new BinaryFileResponse($files[0]);
+
+            if ($download) {
+                $response->setContentDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    $orderRef . '.pdf'
+                );
+            }
+
+            return $response;
         }
 
         return '';
