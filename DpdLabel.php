@@ -74,7 +74,7 @@ class DpdLabel extends BaseModule
     const STATUS_PAID = 2;
     const STATUS_PROCESSING = 3;
 
-    const DPD_LABEL_DIR = THELIA_LOCAL_DIR . "DpdLabel";
+    const DPD_LABEL_DIR = THELIA_LOCAL_DIR . "DpdLabel" . DS;
 
     const DPD_MODULES = ['DpdPickup', 'DpdClassic', 'Predict'];
 

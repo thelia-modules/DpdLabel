@@ -23,8 +23,8 @@ class DpdLabelNumber extends AbstractSmartyPlugin
     {
         $orderId = $params["order_id"];
 
-        $labelNumber = DpdlabelLabelsQuery::create()->filterByOrderId($orderId)->findOne();
+        $labelNumber = DpdlabelLabelsQuery::create()->findOneByOrderId($orderId);
 
-        $smarty->assign('labelNbr', $labelNumber ? $labelNumber->getLabelNumber() : null);
+        $smarty->assign('labelNbr', $labelNumber?->getLabelNumber());
     }
 }

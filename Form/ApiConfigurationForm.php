@@ -38,7 +38,7 @@ class ApiConfigurationForm extends BaseForm
                     [
                         "required" => false,
                         "data" => $data['user_id_' . $code],
-                        "label" => Translator::getInstance()->trans("$code User id", [], DpdLabel::DOMAIN_NAME),
+                        "label" => Translator::getInstance()->trans("%code User id", [ '%code' => $code ], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
                             "for" => "user_id_$code",
                         ],
@@ -49,7 +49,7 @@ class ApiConfigurationForm extends BaseForm
                     [
                         "required" => false,
                         "data" => $data['password_' . $code],
-                        "label" => Translator::getInstance()->trans("$code Password", [], DpdLabel::DOMAIN_NAME),
+                        "label" => Translator::getInstance()->trans("%code Password", [ '%code' => $code ], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
                             "for" => "password_$code",
                         ],
@@ -60,7 +60,7 @@ class ApiConfigurationForm extends BaseForm
                     [
                         "required" => false,
                         "data" => $data['center_number_' . $code],
-                        "label" => Translator::getInstance()->trans("$code Center number", [], DpdLabel::DOMAIN_NAME),
+                        "label" => Translator::getInstance()->trans("%code Center number", ['%code' => $code], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
                             "for" => "center_number_$code",
                         ],
@@ -71,7 +71,7 @@ class ApiConfigurationForm extends BaseForm
                     [
                         "required" => false,
                         "data" => $data['customer_number_' . $code],
-                        "label" => Translator::getInstance()->trans("$code Customer number", [], DpdLabel::DOMAIN_NAME),
+                        "label" => Translator::getInstance()->trans("%code Customer number", ['%code' => $code], DpdLabel::DOMAIN_NAME),
                         "label_attr" => [
                             "for" => "customer_number_$code",
                         ]

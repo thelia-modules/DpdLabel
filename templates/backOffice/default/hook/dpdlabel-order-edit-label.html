@@ -1,23 +1,40 @@
 {assign "err" $smarty.get.err|default:null}
-<br>
-<div class="title title-without-tabs clearfix">
-    {intl l='DPD label' d="dpdlabel.bo.default"}
-</div>
+
 {if $err}
     <div class="alert alert-danger">{$err|default:null}</div>
 {/if}
-<table class="table table-striped">
-    <tr>
-        <th>{intl l='Label Number' d="dpdlabel.bo.default"}</th>
-        <th>{intl l='Date' d="dpdlabel.bo.default"}</th>
-        <th>{intl l='Destination' d="dpdlabel.bo.default"}</th>
-        <th></th>
-    </tr>
-    <tr>
-        {loop type="order" name="get-order-date" id=$order_id customer="*" backend_context="true"}
-            {$weight = $WEIGHT}
-            {DpdLabelNumber order_id=$ID}
+
+{loop type="order" name="get-order-date" id=$order_id customer="*" backend_context="true"}
+    {DpdLabelNumber order_id=$ID}
+
+    <table class="table table-striped">
+        <caption>
+            {intl l='DPD label' d="dpdlabel.bo.default"}
+
+            <a class="btn btn-primary pull-right" href="#dpdlabel-retour-label-dialog" data-toggle="modal">
+                <span class="glyphicon glyphicon-arrow-left"></span> {intl l='Generate retour Label' d="dpdlabel.bo.default"}
+            </a>
+
+            {if ! $labelNbr}
+                <a class="btn btn-success pull-right" style="margin-right: 10px;" href="#dpdlabel-label-dialog" data-toggle="modal">
+                    <span class="glyphicon glyphicon-barcode"></span> {intl l='Generate a label' d="dpdlabel.bo.default"}
+                </a>
+            {/if}
+        </caption>
+
+        {if $labelNbr}
+        <tr>
+            <th>{intl l='Label Number' d="dpdlabel.bo.default"}</th>
+            <th>{intl l='Format' d="dpdlabel.bo.default"}</th>
+            <th>{intl l='Weight' d="dpdlabel.bo.default"}</th>
+            <th>{intl l='Date' d="dpdlabel.bo.default"}</th>
+            <th>{intl l='Tracking URL' d="dpdlabel.bo.default"}</th>
+            <th></th>
+        </tr>
+        <tr>
             <td>{$labelNbr|default:'-'}</td>
+            <td>{DpdLabelType order_id=$ID}</td>
+            <td>{$WEIGHT} kg</td>
             <td>
                 {if $label_created_at}
                     {format_date date=$label_created_at}
@@ -25,9 +42,9 @@
                     -
                 {/if}
             </td>
-            {loop type="order_address" name="destination_loop" id=$DELIVERY_ADDRESS}
-                <td>{$ADDRESS1} {$CITY} {$ZIPCODE}</td>
-            {/loop}
+            <td>
+                <a target="_dpd" href="https://trace.dpd.fr/fr/trace/{$labelNbr}">https://trace.dpd.fr/fr/trace/{$labelNbr}</a>
+            </td>
             <td class="text-right">
                 {if $labelNbr}
                     <a class="btn btn-primary" href="{url path='/admin/module/DpdLabel/saveLabel' labelNbr=$labelNbr orderId=$order_id}">
@@ -40,87 +57,75 @@
                         <span class="glyphicon glyphicon-trash"></span> {intl l='Delete' d="dpdlabel.bo.default"}
                     </a>
                 {/if}
-
-                {if ! $labelNbr}
-                    <a class="btn btn-success" href="#dpdlabel-label-dialog" data-toggle="modal">
-                        <span class="glyphicon glyphicon-barcode"></span> {intl l='Generate a label' d="dpdlabel.bo.default"}
-                    </a>
-
-                    <a class="btn btn-primary" href="#dpdlabel-retour-label-dialog" data-toggle="modal">
-                        <span class="glyphicon glyphicon-arrow-left"></span> {intl l='Generate retour Label' d="dpdlabel.bo.default"}
-                    </a>
-                {/if}
             </td>
-        {/loop}
-    </tr>
-</table>
+        </tr>
+        {/if}
+    </table>
 
-{form name="dpdlabel_label_generation_form"}
-
-{capture "dpdlabel_label_creation"}
-    {form_hidden_fields}
-    <div class="input-group">
-        {form_field field="new_status"}
-            <label>
-                {intl d='dpdlabel.bo.default' l="Order status change after processing"}
-            </label>
-            <div class="radio">
-                <label>
-                    <input type="radio" name="{$name}" value="nochange" {if $data == "nochange"}checked{/if}>
-                    {intl l="Do not change" d='dpdlabel.bo.default'}
-                </label>
+    {form name="dpdlabel_label_generation_form"}
+        {capture "dpdlabel_label_creation"}
+            {form_hidden_fields}
+            <div class="input-group">
+                {form_field field="new_status"}
+                    <label>
+                        {intl d='dpdlabel.bo.default' l="Order status change after processing"}
+                    </label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="{$name}" value="nochange" {if $data == "nochange"}checked{/if}>
+                            {intl l="Do not change" d='dpdlabel.bo.default'}
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="{$name}" value="processing" {if $data == "processing"}checked{/if}>
+                            {intl l="Change to \"Processing\"" d='dpdlabel.bo.default'}
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="{$name}" value="sent" {if $data == "sent"}checked{/if}>
+                            {intl l="Change to \"Sent\". If you choose this option, the delivery notification email is sent to the customer." d='dpdlabel.bo.default'}
+                        </label>
+                    </div>
+                {/form_field}
             </div>
-            <div class="radio">
-                <label>
-                    <input type="radio" name="{$name}" value="processing" {if $data == "processing"}checked{/if}>
-                    {intl l="Change to \"Processing\"" d='dpdlabel.bo.default'}
-                </label>
-            </div>
-            <div class="radio">
-                <label>
-                    <input type="radio" name="{$name}" value="sent" {if $data == "sent"}checked{/if}>
-                    {intl l="Change to \"Sent\". If you choose this option, the delivery notification email is sent to the customer." d='dpdlabel.bo.default'}
-                </label>
-            </div>
-        {/form_field}
-    </div>
-    {custom_render_form_field field='weight' value=$weight}
-        <div class="input-group">
-            <input type="text" {form_field_attributes field="weight" value=$weight}>
-            <span class="input-group-addon">{intl l='kg'}</span>
-        </div>
-    {/custom_render_form_field}
-{/capture}
+            {custom_render_form_field field='weight' value=$WEIGHT}
+                <div class="input-group">
+                    <input type="text" {form_field_attributes field="weight" value=$WEIGHT}>
+                    <span class="input-group-addon">{intl l='kg'}</span>
+                </div>
+            {/custom_render_form_field}
+        {/capture}
 
+        {include
+            file = "includes/generic-create-dialog.html"
 
-    {include
-    file = "includes/generic-create-dialog.html"
+            dialog_id    = "dpdlabel-label-dialog"
+            dialog_title = {intl l="Dpd Labels" d='dpdlabel.bo.default'}
+            dialog_body  = {$smarty.capture.dpdlabel_label_creation nofilter}
 
-    dialog_id    = "dpdlabel-label-dialog"
-    dialog_title = {intl l="Dpd Labels" d='dpdlabel.bo.default'}
-    dialog_body  = {$smarty.capture.dpdlabel_label_creation nofilter}
+            dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}
+            dialog_cancel_label = {intl l="Cancel" d='dpdlabel.bo.default'}
 
-    dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}
-    dialog_cancel_label = {intl l="Cancel" d='dpdlabel.bo.default'}
+            form_action        = {url path="/admin/module/DpdLabel/generateLabel" orderId=$order_id}
+            form_enctype       = {form_enctype}
+            form_error_message = $form_error_message
+        }
 
-    form_action        = {url path="/admin/module/DpdLabel/generateLabel" orderId=$order_id}
-    form_enctype       = {form_enctype}
-    form_error_message = $form_error_message
-    }
+        {include
+            file = "includes/generic-create-dialog.html"
 
-    {include
-    file = "includes/generic-create-dialog.html"
+            dialog_id    = "dpdlabel-retour-label-dialog"
+            dialog_title = {intl l="Enter returned parcel weight" d='dpdlabel.bo.default'}
+            dialog_body  = {$smarty.capture.dpdlabel_label_creation nofilter}
 
-    dialog_id    = "dpdlabel-retour-label-dialog"
-    dialog_title = {intl l="Enter returned parcel weight" d='dpdlabel.bo.default'}
-    dialog_body  = {$smarty.capture.dpdlabel_label_creation nofilter}
+            dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}
+            dialog_cancel_label = {intl l="Cancel" d='dpdlabel.bo.default'}
 
-    dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}
-    dialog_cancel_label = {intl l="Cancel" d='dpdlabel.bo.default'}
-
-    form_action        = {url path="/admin/module/DpdLabel/generateLabel" orderId=$order_id retour=1}
-    form_enctype       = {form_enctype}
-    form_error_message = $form_error_message
-    }
-
-{/form}
+            form_action        = {url path="/admin/module/DpdLabel/generateLabel" orderId=$order_id retour=1}
+            form_enctype       = {form_enctype}
+            form_error_message = $form_error_message
+        }
+    {/form}
+{/loop}

@@ -24,9 +24,10 @@
                                 <th class="text-center">{intl l='Reference' d='dpdlabel.bo.default'}</th>
                                 <th class="text-center">{intl l='Status' d='dpdlabel.bo.default'}</th>
                                 <th class="text-center">{intl l="Date" d='dpdlabel.bo.default'}</th>
-                                <th class="text-center">{intl l="Total Amount" d='dpdlabel.bo.default'}</th>
+                                <th class="text-center">{intl l="Total with tax" d='dpdlabel.bo.default'}</th>
                                 <th class="text-center">{intl l='Destination' d='dpdlabel.bo.default'}</th>
                                 <th class="text-center">{intl l='Label Number' d='dpdlabel.bo.default'}</th>
+                                <th class="text-center">{intl l='Tracking' d='dpdlabel.bo.default'}</th>
                                 <th class="actions text-center">{intl l='Action' d='dpdlabel.bo.default'}</th>
                             </tr>
                         </thead>
@@ -41,32 +42,39 @@
                                         </td>
                                     {/loop}
                                     <td class="text-center">{format_date date=$CREATE_DATE}</td>
-                                    <td class="text-center">{$TOTAL_AMOUNT + $TOTAL_TAX} {$currencySymbol}</td>
+                                    <td class="text-center">{format_money number={$TOTAL_AMOUNT + $TOTAL_TAX}}</td>
                                     {loop type="order_address" name="destination_loop" id=$DELIVERY_ADDRESS}
                                     {loop type="country" name="destination_country_loop" id="$COUNTRY"}
                                     {assign "country" $TITLE}
                                     {/loop}
-                                        <td class="text-center">{$country}, {$ADDRESS1}, {$CITY} {$ZIPCODE}</td>
+                                        <td class="text-center">
+                                            {"$ADDRESS1 $ADDRESS2 $ADDRESS3"|trim}, {$CITY} {$ZIPCODE}, {$country}
+                                        </td>
                                     {/loop}
                                     <td class="text-center">
                                         <a href={url path='/admin/module/DpdLabel/getLabel/%orderRef' orderRef=$REF}>
                                             {$labelNbr}
                                         </a>
                                     </td>
-                                    <td class="actions text-center">
-                                        <a class="btn btn-default btn-xs js-export-download {if $labelNbr}hidden{/if} dpdlabel-label-dialog-button"
-                                           title="{intl l='Download this label' d='dpdlabel.bo.default'}"
-                                           href="#dpdlabel-label-dialog" data-toggle="modal" data-order={$ID}>
-                                            <span class="glyphicon glyphicon-floppy-disk"></span>
+                                    <td class="text-center">
+                                        {if $labelNbr}
+                                        <a target="_dpd" href="https://trace.dpd.fr/fr/trace/{$labelNbr}">{intl l='Track' d='dpdlabel.bo.default'}</a>
+                                        {/if}
+                                    </td>
+                                    <td class="actions text-center nowrap">
+                                        <a class="btn btn-primary btn-xs js-export-download {if $labelNbr}hidden{/if} dpdlabel-label-dialog-button"
+                                           title="{intl l='Generate a label' d='dpdlabel.bo.default'}"
+                                           href="#dpdlabel-label-dialog" data-order="{$ID}" data-weight="{$WEIGHT}">
+                                            <span class="glyphicon glyphicon-barcode"></span>
                                         </a>
-                                        <a class="btn btn-default btn-xs js-export-download {if !$labelNbr}hidden{/if}"
+                                        <a class="btn btn-success btn-xs js-export-download {if !$labelNbr}hidden{/if}"
                                            title="{intl l='Download this label' d='dpdlabel.bo.default'}"
                                            href="{url path="/admin/module/DpdLabel/saveLabel" orderId=$ID}">
                                             <span class="glyphicon glyphicon-floppy-disk"></span>
                                         </a>
                                         <a class="btn btn-danger btn-xs"
                                            title="{intl l='Delete this label' d='dpdlabel.bo.default'}"
-                                           href="{url path='/admin/module/DpdLabel/deleteLabel' orderId=$ID redirect_url="/admin/module/DpdLabel/labels"}"
+                                           href="{url path='/admin/module/DpdLabel/deleteLabel' orderId=$ID return_url={url path="/admin/module/DpdLabel/labels"}}"
                                            {if !$labelNbr}disabled="true"{/if}>
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </a>
@@ -98,8 +106,8 @@
 
     {capture "dpdlabel_label_creation"}
         {form_hidden_fields}
-
-        {render_form_field field='weight' value=$WEIGHT}
+        {render_form_field field='weight' value=""}
+        <input type="hidden" name="return_url" value="{url path="/admin/module/DpdLabel/labels"}">
     {/capture}
 
 
@@ -113,7 +121,7 @@
         dialog_ok_label     = {intl l="Create" d='dpdlabel.bo.default'}
         dialog_cancel_label = {intl l="Cancel" d='dpdlabel.bo.default'}
 
-        form_action        = {url path='admin/module/DpdLabel/saveLabel'}
+        form_action        = {url path='/admin/module/DpdLabel/generateLabel' orderId=_ID_}
         form_enctype       = {form_enctype}
         form_attributes     = 'id="dpdlabel-label-dialog-form"'
         form_error_message = $form_error_message
@@ -125,7 +133,14 @@
 {block name="javascript-last-call"}
 <script type="text/javascript">
     $(".dpdlabel-label-dialog-button").on("click", function () {
-        $("#dpdlabel-label-dialog-form").attr("action", "{url path='admin/module/DpdLabel/saveLabel'}" + "?orderId=" + $(this).attr("data-order"));
+        $('#weight').val($(this).data("weight"));
+        var action = $('#dpdlabel-label-dialog-form').attr('action');
+
+        action = action.replace('_ID_', $(this).data("order"));
+
+        $('#dpdlabel-label-dialog-form').attr('action', action);
+
+        $('#dpdlabel-label-dialog').modal('show')
     })
 </script>
 {/block}

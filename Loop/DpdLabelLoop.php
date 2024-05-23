@@ -23,16 +23,14 @@
 
 namespace DpdLabel\Loop;
 
-use DpdLabel\DpdLabel;
 use DpdLabel\enum\AuthorizedModuleEnum;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Thelia\Core\Template\Element\BaseLoop;
+use Thelia\Core\Template\Element\LoopResult;
+use Thelia\Core\Template\Element\LoopResultRow;
 use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
-use Thelia\Core\Template\Element\BaseLoop;
-use Thelia\Core\Template\Element\LoopResultRow;
-use Thelia\Core\Template\Element\LoopResult;
-use Thelia\Core\Template\Element\ArraySearchLoopInterface;
 use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order;
 use Thelia\Model\OrderQuery;
@@ -73,7 +71,7 @@ class DpdLabelLoop extends BaseLoop implements PropelSearchLoopInterface
             $loopResultRow = new LoopResultRow();
 
             $loopResultRow
-                ->set("LABEL_URL", URL::getInstance()->absoluteUrl('/admin/module/DpdLabel/getLabel/' . $order->getRef() . '?download=1'))
+                ->set("LABEL_URL", URL::getInstance()?->absoluteUrl('/admin/module/DpdLabel/getLabel/' . $order->getRef() . '?download=1'))
             ;
 
             $loopResult->addRow($loopResultRow);

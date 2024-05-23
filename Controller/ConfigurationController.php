@@ -5,6 +5,7 @@ namespace DpdLabel\Controller;
 use DpdLabel\DpdLabel;
 use DpdLabel\Form\ApiConfigurationForm;
 use Thelia\Controller\Admin\BaseAdminController;
+use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
@@ -22,7 +23,7 @@ class ConfigurationController extends BaseAdminController
     /**
      * @Route("", name="_config", methods="POST")
      */
-    public function configureApiAction()
+    public function configureApiAction(Request $request)
     {
         if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['DpdLabel'], [AccessManager::CREATE, AccessManager::UPDATE])) {
             return $response;
@@ -60,7 +61,6 @@ class ConfigurationController extends BaseAdminController
 
 
         if ($errorMessage !== null) {
-
             $this->setupFormErrorContext(
                 Translator::getInstance()->trans(
                     "Error while updating api configurations",
@@ -72,12 +72,21 @@ class ConfigurationController extends BaseAdminController
             );
         }
 
+        $saveMode = $request->get("save_mode");
+
+        if ($saveMode !== 'stay') {
+            return $this->generateRedirectFromRoute(
+                "admin.module",
+                [],
+                ['_controller' => 'Thelia\\Controller\\Admin\\ModuleController::indexAction']
+            );
+        }
+
         return $this->generateRedirectFromRoute(
             "admin.module.configure",
             [],
             [
                 'module_code' => "DpdLabel",
-                'current_tab' => "api_config",
                 '_controller' => 'Thelia\\Controller\\Admin\\ModuleController::configureApiAction'
             ]
         );

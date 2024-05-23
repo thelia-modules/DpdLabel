@@ -21,7 +21,10 @@ class BackHook extends BaseHook
             ->filterByCode(DpdLabel::DPD_MODULES)
             ->find()
             ->toArray();
-        $event->add($this->render('module_configuration.html', ['codes' => $codes]));
+
+        $event->add(
+            $this->render('module-configuration.html', ['codes' => $codes])
+        );
     }
 
 
