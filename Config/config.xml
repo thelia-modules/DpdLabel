@@ -6,6 +6,7 @@
 
     <loops>
         <loop name="dpdlabel.orders" class="DpdLabel\Loop\DpdOrders" />
+        <loop name="dpd.label-info" class="DpdLabel\Loop\DpdLabelLoop" />
     </loops>
 
     <forms>
