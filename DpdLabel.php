@@ -36,19 +36,19 @@ class DpdLabel extends BaseModule
     const API_CUSTOMER_NUMBER_DPD_PREDICT = "dpdlabel_customer_number_dpd_predict";
     const API_DPD_ACCOUNT_CONFIGS = [
         'DpdPickup' => [
-            'user_id' => self::API_USER_ID_DPD_PICKUP,
+            'userId' => self::API_USER_ID_DPD_PICKUP,
             'password' => self::API_PASSWORD_DPD_PICKUP,
             'center_number' => self::API_CENTER_NUMBER_DPD_PICKUP,
             'customer_number' => self::API_CUSTOMER_NUMBER_DPD_PICKUP
         ],
         'DpdClassic' => [
-            'user_id' => self::API_USER_ID_DPD_CLASSIC,
+            'userId' => self::API_USER_ID_DPD_CLASSIC,
             'password' => self::API_PASSWORD_DPD_CLASSIC,
             'center_number' => self::API_CENTER_NUMBER_DPD_CLASSIC,
             'customer_number' => self::API_CUSTOMER_NUMBER_DPD_CLASSIC
         ],
         'Predict' => [
-            'user_id' => self::API_USER_ID_DPD_PREDICT,
+            'userId' => self::API_USER_ID_DPD_PREDICT,
             'password' => self::API_PASSWORD_DPD_PREDICT,
             'center_number' => self::API_CENTER_NUMBER_DPD_PREDICT,
             'customer_number' => self::API_CUSTOMER_NUMBER_DPD_PREDICT
@@ -103,7 +103,7 @@ class DpdLabel extends BaseModule
     {
         $data = [];
         foreach (self::API_DPD_ACCOUNT_CONFIGS as $code => $configs) {
-            $data['user_id_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['user_id']);
+            $data['user_id_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['userId']);
             $data['password_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['password']);
             $data['center_number_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['center_number']);
             $data['customer_number_' . $code] = self::getConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['customer_number']);

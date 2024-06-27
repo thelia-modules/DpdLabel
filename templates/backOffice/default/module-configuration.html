@@ -31,6 +31,10 @@
                             {render_form_field field="center_number_`$code`"}
                             {render_form_field field="customer_number_`$code`"}
                         </div>
+                        {foreachelse}
+                            <div class="alert alert-danger">
+                                {intl l='No DPD delivery module was found. Please install at least one DPD delivery module.' d='dpdlabel.bo.default'}
+                            </div>
                         {/foreach}
                         {render_form_field field="label_type"}
                         {render_form_field field="isTest"}

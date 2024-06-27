@@ -1,6 +1,7 @@
 <?php
 
 return array(
+    'No DPD delivery module was found. Please install at least one DPD delivery module.' => 'Aucun module de livraison DPD ne semble installé sur ce Thelia.',
     'Action' => 'Action',
     'Cancel' => 'Annuler',
     'Change to "Processing"' => 'Changer en "Traitement"',

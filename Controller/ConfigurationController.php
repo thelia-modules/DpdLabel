@@ -38,7 +38,12 @@ class ConfigurationController extends BaseAdminController
             $data = $form->getData();
 
             foreach (DpdLabel::API_DPD_ACCOUNT_CONFIGS as $code => $configs) {
-                DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['user_id'], $data["user_id_$code"]);
+                // Module pas installé ?
+                if (! isset($data["user_id_$code"])) {
+                    continue;
+                }
+
+                DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['userId'], $data["user_id_$code"]);
                 DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['password'], $data["password_$code"]);
                 DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['center_number'], $data["center_number_$code"]);
                 DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['customer_number'], $data["customer_number_$code"]);

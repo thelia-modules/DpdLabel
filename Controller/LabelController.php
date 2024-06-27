@@ -1,16 +1,23 @@
 <?php
 
-namespace DpdLabel\Controller;
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
+namespace DpdLabel\Controller;
 
 use DpdLabel\DpdLabel;
 use DpdLabel\Form\LabelGenerationForm;
 use DpdLabel\Model\DpdlabelLabelsQuery;
 use DpdLabel\Service\LabelService;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,7 +41,7 @@ class LabelController extends BaseAdminController
     public function showAction(Request $request): Response
     {
         return $this->render('dpdlabel-labels', [
-            "err" => $request->get("err")
+            'err' => $request->get('err'),
         ]);
     }
 
@@ -43,43 +50,36 @@ class LabelController extends BaseAdminController
      */
     public function saveAction(Request $request, LabelService $labelService, Translator $translator): Response
     {
-        $orderId = $request->get("orderId");
-
-        $fileSystem = new Filesystem();
-
-        if (!$fileSystem->exists(DpdLabel::DPD_LABEL_DIR)) {
-            $fileSystem->mkdir(DpdLabel::DPD_LABEL_DIR);
-        }
+        $orderId = $request->get('orderId');
 
         try {
             if (null === $order = OrderQuery::create()->filterById($orderId)->findOne()) {
                 return new Response(
                     $translator->trans(
-                        "Order ID %id not found",
-                        [ '%id' => $orderId ],
+                        'Order ID %id not found',
+                        ['%id' => $orderId],
                         DpdLabel::DOMAIN_NAME
                     ),
                     Response::HTTP_NOT_FOUND
                 );
             }
 
-            $labelName = DpdLabel::DPD_LABEL_DIR . $order->getRef();
-            $labelName = $labelService->setLabelNameExtension($labelName);
+            $labelPath = $labelService->getLabelPath($order);
 
             if (null !== DpdlabelLabelsQuery::create()->filterByOrderId($order->getId())->findOne()) {
-                return $this->downloadAction(base64_encode($labelName), $translator);
+                return $this->downloadAction(base64_encode($labelPath), $translator);
             }
 
             $data = $this->validateForm($this->createForm(LabelGenerationForm::getName()))->getData();
 
-            $labelService->createLabel($order, $labelName, (float) $data['weight']);
+            $labelService->createLabel($order, $labelPath, (float) $data['weight']);
 
-            $params = ['file' => base64_encode($labelName)];
+            $params = ['file' => base64_encode($labelPath)];
 
             return $this->generateRedirect(URL::getInstance()?->absoluteUrl('admin/module/DpdLabel/labels', $params));
         } catch (\Exception $ex) {
-            return $this->generateRedirect(URL::getInstance()?->absoluteUrl("admin/module/DpdLabel/labels", [
-                "err" => $ex->getMessage()
+            return $this->generateRedirect(URL::getInstance()?->absoluteUrl('admin/module/DpdLabel/labels', [
+                'err' => $ex->getMessage(),
             ]));
         }
     }
@@ -89,9 +89,9 @@ class LabelController extends BaseAdminController
      */
     public function generateLabelAction(Request $request, LabelService $labelService): Response
     {
-        $orderId = $request->get("orderId");
-        $retour = (bool) $request->get("retour");
-        $returnUrl = $request->get("return_url");
+        $orderId = $request->get('orderId');
+        $retour = (bool) $request->get('retour');
+        $returnUrl = $request->get('return_url');
         $error = null;
 
         try {
@@ -99,20 +99,13 @@ class LabelController extends BaseAdminController
                 throw new TheliaProcessException("Cannot find order ID $orderId");
             }
 
-            $labelName = DpdLabel::DPD_LABEL_DIR . $order->getRef();
-            $labelName = $labelService->setLabelNameExtension($labelName);
-
-            $fileSystem = new Filesystem();
-
-            if (!$fileSystem->exists(DpdLabel::DPD_LABEL_DIR)) {
-                $fileSystem->mkdir(DpdLabel::DPD_LABEL_DIR);
-            }
+            $labelPath = $labelService->getLabelPath($order);
 
             $data = $this->validateForm($this->createForm(LabelGenerationForm::getName()))->getData();
 
             DpdLabel::setConfigValue('new_status', $data['new_status']);
 
-            $labelService->createLabel($order, $labelName, (float) $data['weight'], $retour, null, $data['new_status']);
+            $labelService->createLabel($order, $labelPath, (float) $data['weight'], $retour, null, $data['new_status']);
         } catch (\Exception $e) {
             $error = $e->getMessage();
         }
@@ -121,16 +114,14 @@ class LabelController extends BaseAdminController
             return new RedirectResponse($returnUrl);
         }
 
-        return $this->generateRedirect(URL::getInstance()?->absoluteUrl('/admin/order/update/' . $orderId, [
-            "err" => $error,
-            "tab" => 'bill'
+        return $this->generateRedirect(URL::getInstance()?->absoluteUrl('/admin/order/update/'.$orderId, [
+            'err' => $error,
+            'tab' => 'bill',
         ]));
     }
 
     /**
      * @Route("/labels-file/{base64EncodedFilename}", name="_labels-file_download", methods="GET")
-     * @param $base64EncodedFilename
-     * @return Response
      */
     public function downloadAction(string $base64EncodedFilename, Translator $translator): Response
     {
@@ -148,7 +139,7 @@ class LabelController extends BaseAdminController
                 [
                     'Content-Description' => 'File Transfer',
                     'Content-Type' => 'application/octet-stream',
-                    'Content-Disposition' => 'attachment; filename="' . basename($fileName) . '"',
+                    'Content-Disposition' => 'attachment; filename="'.basename($fileName).'"',
                     'Expires: 0',
                     'Cache-Control' => 'must-revalidate',
                     'Pragma' => 'public',
@@ -158,8 +149,8 @@ class LabelController extends BaseAdminController
 
         return new Response(
             $translator->trans(
-                "Label file %fileName was not found",
-                [ '%fileName' => $fileName ],
+                'Label file %fileName was not found',
+                ['%fileName' => $fileName],
                 DpdLabel::DOMAIN_NAME
             ),
             Response::HTTP_NOT_FOUND
@@ -169,19 +160,15 @@ class LabelController extends BaseAdminController
     /**
      * @Route("/getLabel/{orderRef}", name="_get_label", methods="GET")
      */
-    public function getLabelAction($orderRef, Request $request, Translator $translator): Response
+    public function getLabelAction($orderRef, Request $request, Translator $translator, LabelService $labelService): Response
     {
-        $file = DpdLabel::DPD_LABEL_DIR . $orderRef;
-
-        $files = glob($file.'.*');
-
-        if (!empty($files) && file_exists($files[0])) {
-            $response = new BinaryFileResponse($files[0]);
+        if (null !== $labelFile = $labelService->getLabelFilePathForOrder($orderRef)) {
+            $response = new BinaryFileResponse($labelFile);
 
             if ($request->get('download')) {
                 $response->setContentDisposition(
                     ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                    basename($files[0])
+                    basename($labelFile)
                 );
             }
 
@@ -190,8 +177,8 @@ class LabelController extends BaseAdminController
 
         return new Response(
             $translator->trans(
-                "Label not found for order ref. %ref",
-                [ '%ref' => $orderRef ],
+                'Label not found for order ref. %ref',
+                ['%ref' => $orderRef],
                 DpdLabel::DOMAIN_NAME
             ),
             Response::HTTP_NOT_FOUND
@@ -199,36 +186,25 @@ class LabelController extends BaseAdminController
     }
 
     /**
-     * @param Request $request
-     * @return Response
      * @throws \Propel\Runtime\Exception\PropelException
+     *
      * @Route("/deleteLabel", name="_delete_label", methods="GET")
      */
-    public function deleteLabelAction(Request $request): Response
+    public function deleteLabelAction(Request $request, LabelService $labelService): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
             return $response;
         }
 
-        $orderId = $request->get("orderId");
-        $returnUrl = $request->get("return_url");
+        $orderId = $request->get('orderId');
+        $returnUrl = $request->get('return_url');
 
-        if (null !== $label = DpdlabelLabelsQuery::create()->filterByOrderId($orderId)->findOne()) {
-            $fs = new Filesystem();
-
-            $labelName = DpdLabel::DPD_LABEL_DIR . $label->getOrder()->getRef();
-
-            foreach (glob($labelName . '.*') as $filename) {
-                $fs->remove($filename);
-            }
-
-            $label->delete();
-        }
+        $labelService->deleteLabel($orderId);
 
         if ($returnUrl) {
             return new RedirectResponse($returnUrl);
         }
 
-        return $this->generateRedirect(URL::getInstance()?->absoluteUrl($request->get("redirect_url")));
+        return $this->generateRedirect(URL::getInstance()?->absoluteUrl($request->get('redirect_url')));
     }
 }
