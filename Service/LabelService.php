@@ -98,6 +98,14 @@ class LabelService
             );
         }
 
+        $label = new DpdlabelLabels();
+        $label
+            ->setOrderId($order->getId())
+            ->setLabelNumber($shipments->Shipment->BarcodeId)
+            ->save();
+
+        $order->setDeliveryRef($shipments->Shipment->BarcodeId)->save();
+
         /* Change the order status if it was requested by the user */
         if (null !== $newStatus) {
             $newStatusId = $newStatus->getId();
@@ -110,14 +118,6 @@ class LabelService
                 );
             }
         }
-
-        $label = new DpdlabelLabels();
-        $label
-            ->setOrderId($order->getId())
-            ->setLabelNumber($shipments->Shipment->BarcodeId)
-            ->save();
-
-        $order->setDeliveryRef($shipments->Shipment->BarcodeId)->save();
 
         return $label;
     }
