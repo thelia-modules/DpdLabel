@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DpdLabel\Form;
 
 use DpdLabel\DpdLabel;
@@ -205,7 +207,7 @@ class ApiConfigurationForm extends BaseForm
             );
     }
 
-    public static function getName()
+    public static function getName(): string
     {
         return "dpdlabel_api_config_form";
     }

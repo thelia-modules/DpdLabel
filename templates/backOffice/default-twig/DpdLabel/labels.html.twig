@@ -1,0 +1,146 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% form_theme form with bo_form_themes only %}
+
+{% block title %}{{ 'DPD Labels'|trans({}, 'dpdlabel.bo.default') }}{% endblock %}
+{% block body_testid %}dpdlabel-labels{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb" class="mb-1">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ path('admin.home') }}">{{ 'Home'|trans }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'DPD Labels'|trans({}, 'dpdlabel.bo.default') }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <h1 class="h4 mb-3">{{ 'DPD Labels'|trans({}, 'dpdlabel.bo.default') }}</h1>
+
+    {% if err %}
+        <div class="alert alert-danger">{{ err }}</div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>{{ 'Reference'|trans({}, 'dpdlabel.bo.default') }}</th>
+                            <th>{{ 'Status'|trans({}, 'dpdlabel.bo.default') }}</th>
+                            <th>{{ 'Date'|trans({}, 'dpdlabel.bo.default') }}</th>
+                            <th>{{ 'Total with tax'|trans({}, 'dpdlabel.bo.default') }}</th>
+                            <th>{{ 'Destination'|trans({}, 'dpdlabel.bo.default') }}</th>
+                            <th>{{ 'Label Number'|trans({}, 'dpdlabel.bo.default') }}</th>
+                            <th>{{ 'Tracking'|trans({}, 'dpdlabel.bo.default') }}</th>
+                            <th class="text-end">{{ 'Action'|trans({}, 'dpdlabel.bo.default') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td><a href="{{ path('admin.order.update.view', {order_id: order.id}) }}">{{ order.ref }}</a></td>
+                                <td>
+                                    {% if order.status_title %}
+                                        <span class="badge" style="background-color: {{ order.status_color }}">{{ order.status_title }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ order.created_at ? order.created_at|date('d/m/Y H:i') : '-' }}</td>
+                                <td>{{ order.total_with_tax|number_format(2, '.', ' ') }} {{ order.currency_symbol }}</td>
+                                <td>{{ order.destination }}</td>
+                                <td>
+                                    {% if order.label_number %}
+                                        <a href="{{ path('dpdlabel_get_label', {orderRef: order.ref}) }}">{{ order.label_number }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.label_number %}
+                                        <a target="_dpd" href="https://trace.dpd.fr/fr/trace/{{ order.label_number }}">{{ 'Track'|trans({}, 'dpdlabel.bo.default') }}</a>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    {% if not order.label_number %}
+                                        <button type="button" class="btn btn-primary btn-sm js-dpd-generate"
+                                                title="{{ 'Generate a label'|trans({}, 'dpdlabel.bo.default') }}"
+                                                data-order="{{ order.id }}" data-weight="{{ order.weight }}"
+                                                data-bs-toggle="modal" data-bs-target="#dpdlabel-label-dialog">
+                                            <i class="bi bi-upc-scan"></i>
+                                        </button>
+                                    {% else %}
+                                        <a class="btn btn-success btn-sm"
+                                           title="{{ 'Download this label'|trans({}, 'dpdlabel.bo.default') }}"
+                                           href="{{ path('dpdlabel_save_label', {orderId: order.id}) }}">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                        <a class="btn btn-danger btn-sm"
+                                           title="{{ 'Delete this label'|trans({}, 'dpdlabel.bo.default') }}"
+                                           href="{{ path('dpdlabel_delete_label', {orderId: order.id, return_url: path('dpdlabel_labels'), _token: token}) }}">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="8">
+                                    <div class="alert alert-info mb-0">
+                                        {{ 'There is no DPD label yet. To create your labels, use the label creation tool in the "Shipping and billing" tab of your orders.'|trans({}, 'dpdlabel.bo.default') }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if file %}
+        <iframe style="width:100%;height:20px;border:none"
+                src="{{ path('dpdlabel_labels_file_download', {base64EncodedFilename: file}) }}"></iframe>
+    {% endif %}
+
+    {# Label creation modal #}
+    <div class="modal fade" id="dpdlabel-label-dialog" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                {{ form_start(form, {action: path('dpdlabel_generate_label'), method: 'POST', attr: {id: 'dpdlabel-label-dialog-form'}}) }}
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ 'Create label'|trans({}, 'dpdlabel.bo.default') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form_row(form.weight) }}
+                    <input type="hidden" name="return_url" value="{{ path('dpdlabel_labels') }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans({}, 'dpdlabel.bo.default') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ 'Create'|trans({}, 'dpdlabel.bo.default') }}</button>
+                </div>
+                {% do form.new_status.setRendered %}
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts_extra %}
+    {{ parent() }}
+    <script>
+        (function () {
+            'use strict';
+            var form = document.getElementById('dpdlabel-label-dialog-form');
+            if (!form) return;
+            var baseAction = form.getAttribute('action');
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.js-dpd-generate');
+                if (!btn) return;
+                form.setAttribute('action', baseAction + '?orderId=' + encodeURIComponent(btn.dataset.order));
+                var weight = form.querySelector('[name$="[weight]"]');
+                if (weight) weight.value = btn.dataset.weight || '';
+            });
+        }());
+    </script>
+{% endblock %}

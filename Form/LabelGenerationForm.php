@@ -6,6 +6,8 @@
  * Time: 16:42
  */
 
+declare(strict_types=1);
+
 namespace DpdLabel\Form;
 
 
@@ -48,7 +50,7 @@ class LabelGenerationForm extends BaseForm
             );
     }
 
-    public static function getName()
+    public static function getName(): string
     {
         return "dpdlabel_label_generation_form";
     }
