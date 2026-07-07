@@ -10,11 +10,13 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
+declare(strict_types=1);
+
 namespace DpdLabel;
 
 use Propel\Runtime\Connection\ConnectionInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
-use Thelia\Install\Database;
+use Thelia\Core\Install\Database;
 use Thelia\Module\BaseModule;
 
 class DpdLabel extends BaseModule
@@ -78,14 +80,14 @@ class DpdLabel extends BaseModule
 
     const DPD_MODULES = ['DpdPickup', 'DpdClassic', 'Predict'];
 
-    public function postActivation(ConnectionInterface $con = null): void
+    public function postActivation(?ConnectionInterface $con = null): void
     {
-        $database = new Database($con->getWrappedConnection());
+        $database = new Database($con);
 
         if ("1" !== self::getConfigValue("is_initialized")){
             $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
 
-            self::setConfigValue("is_initialized", 1);
+            self::setConfigValue("is_initialized", "1");
 
             // Official DPD data test parameters
             foreach (self::API_DPD_ACCOUNT_CONFIGS as $code => $configs) {
@@ -94,8 +96,8 @@ class DpdLabel extends BaseModule
                 self::setConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['center_number'], '77');
                 self::setConfigValue(self::API_DPD_ACCOUNT_CONFIGS[$code]['customer_number'], '18028');
             }
-            self::setConfigValue(self::API_LABEL_TYPE, 0);
-            self::setConfigValue(self::API_IS_TEST, true);
+            self::setConfigValue(self::API_LABEL_TYPE, "0");
+            self::setConfigValue(self::API_IS_TEST, "1");
         }
     }
 
@@ -123,8 +125,8 @@ class DpdLabel extends BaseModule
 
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
-        $servicesConfigurator->load(self::getModuleCode().'\\', THELIA_MODULE_DIR . ucfirst(self::getModuleCode()))
-            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([__DIR__.'/I18n/*'])
             ->autowire(true)
             ->autoconfigure(true);
     }

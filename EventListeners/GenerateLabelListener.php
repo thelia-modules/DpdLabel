@@ -1,38 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DpdLabel\EventListeners;
 
 
 use DpdLabel\enum\AuthorizedModuleEnum;
 use DpdLabel\Service\LabelService;
 use Picking\Event\GenerateLabelEvent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Thelia\Controller\Admin\BaseAdminController;
 
 /**
  * Class GenerateLabelListener
  *
- * This class is used only when you have the Picking module
+ * This class is used only when you have the Picking module.
+ *
+ * NOTE (legacy, pre-existing): generateLabel() calls $this->service->generateLabel(),
+ * but the injected property is $this->labelService and LabelService has no generateLabel()
+ * method. This code path only runs when the Picking module dispatches its event, which is
+ * not the case on this project. Behaviour left untouched (out of migration scope) — to be
+ * fixed on a project that actually ships the Picking module.
  *
  * @package DpdLabel\EventListeners
  */
-class GenerateLabelListener extends BaseAdminController implements EventSubscriberInterface
+final class GenerateLabelListener implements EventSubscriberInterface
 {
-    protected $labelService;
-
-    /**
-     * @param LabelService $labelService
-     */
-    public function __construct(LabelService $labelService)
+    public function __construct(protected LabelService $labelService)
     {
-        $this->labelService = $labelService;
     }
 
-    /**
-     * @param GenerateLabelEvent $event
-     */
-    public function generateLabel(GenerateLabelEvent $event)
+    public function generateLabel(GenerateLabelEvent $event): void
     {
         $deliveryModuleCode = $event->getOrder()->getModuleRelatedByDeliveryModuleId()->getCode();
         if ($deliveryModuleCode === AuthorizedModuleEnum::DpdPickup->value) {
@@ -44,12 +41,13 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         $events = [];
-        if (class_exists('Picking\Event\GenerateLabelEvent')){
+        if (class_exists('Picking\Event\GenerateLabelEvent')) {
             $events[GenerateLabelEvent::PICKING_GENERATE_LABEL] = ['generateLabel', 65];
         }
+
         return $events;
     }
 }

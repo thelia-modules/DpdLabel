@@ -10,6 +10,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace DpdLabel\Service;
 
 use DpdLabel\DpdLabel;
@@ -56,7 +58,7 @@ class LabelService
      * @throws PropelException
      * @throws \SoapFault
      */
-    public function createLabel(Order $order, string $labelName, float $weight, bool $retour = false, string $forceTypeLabel = null, string $newStatusCode = null): DpdlabelLabels
+    public function createLabel(Order $order, string $labelName, float $weight, bool $retour = false, ?string $forceTypeLabel = null, ?string $newStatusCode = null): DpdlabelLabels
     {
         $data = $this->writeData($order, $weight, $retour, $forceTypeLabel);
 
@@ -219,7 +221,7 @@ class LabelService
         return $ApiData;
     }
 
-    public function setLabelNameExtension($labelName, string $forceTypeLabel = null)
+    public function setLabelNameExtension($labelName, ?string $forceTypeLabel = null)
     {
         $label = strtoupper(
             $forceTypeLabel ?: ApiConfigurationForm::LABEL_TYPE_CHOICES[DpdLabel::getConfigValue(DpdLabel::API_LABEL_TYPE)]
@@ -255,7 +257,7 @@ class LabelService
      */
     public function getLabelFilePathForOrder($orderRef)
     {
-        $file = DpdLabel::DPD_LABEL_DIR.$orderRef;
+        $file = DpdLabel::DPD_LABEL_DIR.basename((string) $orderRef);
 
         $files = glob($file.'.*');
 
