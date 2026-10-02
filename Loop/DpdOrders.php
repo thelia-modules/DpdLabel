@@ -7,6 +7,7 @@ namespace DpdLabel\Loop;
 use DpdLabel\DpdLabel;
 use DpdLabel\enum\AuthorizedModuleEnum;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Thelia\Core\Template\Loop\Order;
 use Thelia\Model\ModuleQuery;
 use Thelia\Model\OrderQuery;
@@ -14,7 +15,7 @@ use Thelia\Model\OrderQuery;
 
 class DpdOrders extends Order
 {
-    public function buildModelCriteria()
+    public function buildModelCriteria(): ModelCriteria
     {
         $filter = [];
 

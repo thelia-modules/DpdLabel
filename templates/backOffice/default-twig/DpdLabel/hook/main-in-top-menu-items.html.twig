@@ -1,0 +1,7 @@
+{% set is_active = admin_current_location is defined and admin_current_location starts with 'dpdlabel' %}
+<li class="nav-item" id="module_menu_dpdlabel">
+    <a class="nav-link {{ is_active ? 'active' : '' }}" title="{{ 'DPD Labels'|trans({}, 'dpdlabel.bo.default') }}" href="{{ path('dpdlabel_labels') }}">
+        <i class="bi bi-truck me-2" aria-hidden="true"></i>
+        <span class="item-text">{{ 'DPD Labels'|trans({}, 'dpdlabel.bo.default') }}</span>
+    </a>
+</li>

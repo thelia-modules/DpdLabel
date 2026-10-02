@@ -25,6 +25,7 @@ namespace DpdLabel\Loop;
 
 use DpdLabel\enum\AuthorizedModuleEnum;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
@@ -41,14 +42,14 @@ use Thelia\Tools\URL;
  */
 class DpdLabelLoop extends BaseLoop implements PropelSearchLoopInterface
 {
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createAnyTypeArgument('order_id', null, true)
         );
     }
 
-    public function buildModelCriteria()
+    public function buildModelCriteria(): ModelCriteria
     {
         $filter = [];
 
@@ -64,14 +65,14 @@ class DpdLabelLoop extends BaseLoop implements PropelSearchLoopInterface
             ->orderByCreatedAt(Criteria::DESC);
     }
 
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         /** @var Order $order */
         foreach ($loopResult->getResultDataCollection() as $order) {
             $loopResultRow = new LoopResultRow();
 
             $loopResultRow
-                ->set("LABEL_URL", URL::getInstance()?->absoluteUrl('/admin/module/DpdLabel/getLabel/' . $order->getRef() . '?download=1'))
+                ->set("LABEL_URL", URL::getInstance()->absoluteUrl('/admin/module/DpdLabel/getLabel/' . $order->getRef() . '?download=1'))
             ;
 
             $loopResult->addRow($loopResultRow);

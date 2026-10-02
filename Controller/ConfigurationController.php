@@ -1,28 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DpdLabel\Controller;
 
 use DpdLabel\DpdLabel;
 use DpdLabel\Form\ApiConfigurationForm;
+use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\Exception\FormValidationException;
-use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/admin/module/DpdLabel/api-config", name="dpdlabel_api")
- * Class ConfigurationController
- * @package DpdLabel\Controller
- * @author Etienne Perriere <eperriere@openstudio.fr>
- */
+#[Route('/admin/module/DpdLabel/api-config', name: 'dpdlabel_api')]
 class ConfigurationController extends BaseAdminController
 {
-    /**
-     * @Route("", name="_config", methods="POST")
-     */
+    #[Route('', name: '_config', methods: ['POST'])]
     public function configureApiAction(Request $request)
     {
         if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['DpdLabel'], [AccessManager::CREATE, AccessManager::UPDATE])) {
@@ -48,8 +43,8 @@ class ConfigurationController extends BaseAdminController
                 DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['center_number'], $data["center_number_$code"]);
                 DpdLabel::setConfigValue(DpdLabel::API_DPD_ACCOUNT_CONFIGS[$code]['customer_number'], $data["customer_number_$code"]);
             }
-            DpdLabel::setConfigValue(DpdLabel::API_LABEL_TYPE, $data["label_type"]);
-            DpdLabel::setConfigValue(DpdLabel::API_IS_TEST, $data["isTest"]);
+            DpdLabel::setConfigValue(DpdLabel::API_LABEL_TYPE, (string) $data["label_type"]);
+            DpdLabel::setConfigValue(DpdLabel::API_IS_TEST, $data["isTest"] ? "1" : "0");
             DpdLabel::setConfigValue(DpdLabel::API_SHIPPER_NAME, $data["shipper_name"]);
             DpdLabel::setConfigValue(DpdLabel::API_SHIPPER_ADDRESS1, $data["shipper_address1"]);
             DpdLabel::setConfigValue(DpdLabel::API_SHIPPER_COUNTRY, $data["shipper_country"]);
@@ -77,7 +72,7 @@ class ConfigurationController extends BaseAdminController
             );
         }
 
-        $saveMode = $request->get("save_mode");
+        $saveMode = $request->request->get("save_mode");
 
         if ($saveMode !== 'stay') {
             return $this->generateRedirectFromRoute(
