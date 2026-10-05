@@ -200,7 +200,7 @@ class LabelController extends BaseAdminController
     /**
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    #[Route('/deleteLabel', name: '_delete_label', methods: ['GET'])]
+    #[Route('/deleteLabel', name: '_delete_label', methods: ['POST'])]
     public function deleteLabelAction(Request $request, LabelService $labelService): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
@@ -208,7 +208,7 @@ class LabelController extends BaseAdminController
         }
 
         try {
-            $this->getTokenProvider()->checkToken((string) $request->query->get('_token', ''));
+            $this->getTokenProvider()->checkToken((string) $request->request->get('_token', ''));
         } catch (TokenAuthenticationException) {
             return new Response('Invalid token', Response::HTTP_FORBIDDEN);
         }
