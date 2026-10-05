@@ -49,10 +49,13 @@
                                 <a class="btn btn-info btn-sm" target="_blank" href="{{ path('dpdlabel_get_label', {orderRef: order_ref}) }}">
                                     <i class="bi bi-eye"></i> {{ 'View'|trans({}, 'dpdlabel.bo.default') }}
                                 </a>
-                                <a class="btn btn-danger btn-sm"
-                                   href="{{ path('dpdlabel_delete_label', {orderId: order_id, redirect_url: path('admin.order.update.view', {order_id: order_id, tab: 'bill'}), _token: token}) }}">
-                                    <i class="bi bi-trash"></i> {{ 'Delete'|trans({}, 'dpdlabel.bo.default') }}
-                                </a>
+                                <form method="post" class="d-inline"
+                                      action="{{ path('dpdlabel_delete_label', {orderId: order_id, redirect_url: path('admin.order.update.view', {order_id: order_id, tab: 'bill'})}) }}">
+                                    <input type="hidden" name="_token" value="{{ token }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i> {{ 'Delete'|trans({}, 'dpdlabel.bo.default') }}
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     </tbody>
