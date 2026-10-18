@@ -168,7 +168,10 @@ class LabelService
 
         $services = [];
 
-        if ($order->getModuleRelatedByDeliveryModuleId()->getCode() === AuthorizedModuleEnum::DpdPickup->value) {
+        if (
+            $order->getModuleRelatedByDeliveryModuleId()->getCode() === AuthorizedModuleEnum::DpdPickup->value
+            && class_exists(OrderAddressIcirelaisQuery::class)
+        ) {
             $orderAddressIciRelais = OrderAddressIcirelaisQuery::create()->findPk($deliveryAddress->getId());
 
             $services = [

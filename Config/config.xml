@@ -4,11 +4,5 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
 
-    <!-- Loop aliases kept: their names differ from the auto snake_case derived from the class. -->
-    <loops>
-        <loop name="dpdlabel.orders" class="DpdLabel\Loop\DpdOrders" />
-        <loop name="dpd.label-info" class="DpdLabel\Loop\DpdLabelLoop" />
-    </loops>
-
     <!-- Forms and hooks are auto-discovered in Thelia 3 (see DpdLabel::configureServices). -->
 </config>
