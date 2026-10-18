@@ -241,8 +241,8 @@ class LabelController extends BaseAdminController
     /**
      * Build the list of DPD orders for the labels management page.
      *
-     * Reuses the DpdOrders loop criteria: orders shipped through an active DPD
-     * delivery module, in paid or processing status, most recent first.
+     * Orders shipped through an active DPD delivery module, in paid or
+     * processing status, most recent first.
      *
      * @return array<int, array<string, mixed>>
      */
