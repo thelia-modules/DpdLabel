@@ -49,7 +49,7 @@ class LabelController extends BaseAdminController
 
         $form = $this->createForm(LabelGenerationForm::getName());
 
-        return $this->render('DpdLabel/labels.html.twig', [
+        return $this->render('DpdLabel/labels', [
             'form' => $form->getForm()->createView(),
             'token' => $this->getTokenProvider()->assignToken(),
             'err' => $request->query->get('err'),
